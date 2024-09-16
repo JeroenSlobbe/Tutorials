@@ -44,7 +44,7 @@ More information can be found at the website of <a href="https://support.industr
 
 ![Picture of configuration screen](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/modbusAddressSpace.png?raw=true)
 
-Finally,  we connect the PLC and upload the program to it. If you are having troubles with locating the PLC, make sure your network adapter is configured with an IP address that can reach the IP address of the PLC. Additionally, the Modbus TCP/IP port is assigned. To find the precise port, I ran an nmap scan: nmap 192.168.0.3 -p 500-510 and figured that in my case, port 510 was assigned.
+Finally,  we connect the PLC and upload the program to it. If you are having troubles with locating the PLC, make sure your network adapter is configured with an IP address that can reach the IP address of the PLC. Additionally, the Modbus TCP/IP port is assigned. To find the precise port, I ran an <a href="https://nmap.org/download">nmap</a> scan: _nmap 192.168.0.3 -p 500-510_ and figured that in my case, port 510 was assigned.
 
 In case the program is running, but you still want to check the device IP address, you could use the following steps to escape the program:
 

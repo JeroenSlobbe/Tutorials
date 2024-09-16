@@ -100,7 +100,9 @@ print("[*] Response from PLC, address: ", address, " has value: ", response[0])
 ## Analyse TCP communication
 To get a better understanding of the Modbus protocol, let's break it down. First we need <a href="https://www.wireshark.org">Wireshark</a>  to see what goes over the line. Now, let's request the Holding Register two times. One time when the counter is 1 and the second time when the counter is 4. As you can see in the Wireshark capture below, the request to obtain the address through Modbus is made over TCP port 510.
 
+Transmission 1, with counter = 1
 ![Screenshot of wireshark when counter=1](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/shark_1.png?raw=true)
+Transmission 4, with counter = 4
 ![Screenshot of wireshark when counter=4](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/shark_2.png?raw=true)
 
 Besides the wireshark captures, let's also get the <a href="https://www.prosoft-technology.com/kb/assets/intro_modbustcp.pdf">Modbus documentation</a>. The documentation specifies that a modus request over TCP contains several parts: (Transaction ID, Protocol ID, Field Length, UnitID, function code and Data). It also specifies the size of these fields. Hence, I mapped the wireshark responses to the specification:
@@ -108,7 +110,7 @@ Besides the wireshark captures, let's also get the <a href="https://www.prosoft-
 | MODBUS protocol part | Transaction ID | Protocol Identifier | Field Length | UnitID | Function Code | Data |
 |-----:|-----------|-----------|-----------|-----------|-----------|-----------|
 |Size|2 bytes| 2 bytes | 2 bytes | 1 byte | 1 byte | Variable |
-|Transmission 1 |B7 98| 00 00 | 00 0 | 01 | 03 | 00 01 00 01 |
+|Transmission 1 |B7 98| 00 00 | 00 00 | 01 | 03 | 00 01 00 01 |
 |Receive 1 |B7 98| 00 00 | 00 05 | 01 | 03 | 02 00 01 |
 |Transmission 2 |3F D1| 00 00 | 	00 06 | 01 | 03 | 00 01 00 01 |
 |Receive 1 |3F D1| 00 00 | 	00 05 | 01 | 03 | 02 00 04 |

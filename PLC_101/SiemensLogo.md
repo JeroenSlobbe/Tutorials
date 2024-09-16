@@ -61,7 +61,7 @@ Afterwards you could obtain the IP address (or, if the program isn't running, yo
 1. Select IP address and press 'OK'
 2. write down the IP, subnet mask and gateway
 
-During the configuration and memory mapping, we already found that the address of our counter is: 1. However, if you have an unfamiliar PLC, you could scan the PLC addresses using the modbustools (https://www.modbustools.com/download.html) , tool and simply click: 'scan addresses':
+During the configuration and memory mapping, we already found that the address of our counter is: 1. However, if you have an unfamiliar PLC, you could scan the PLC addresses using the <a href="https://www.modbustools.com/download.html">modbustools</a>, tool and simply click: 'scan addresses':
 
 ![Picture of modbustools](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/modbustools.png?raw=true)
 
@@ -96,5 +96,23 @@ print("[*] Response from PLC, address: ", address, " has value: ", response[0])
 #print("[*] Writing: ", parameterPayload, " to address: ",address)
 
 ```
+
+## Analyse TCP communication
+To get a better understanding of the Modbus protocol, let's break it down. First we need <a href="https://www.wireshark.org">Wireshark</a>  to see what goes over the line. Now, let's request the Holding Register two times. One time when the counter is 1 and the second time when the counter is 4. As you can see in the Wireshark capture below, the request to obtain the address through Modbus is made over TCP port 510.
+
+![Screenshot of wireshark when counter=1](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/shark_1.png?raw=true)
+![Screenshot of wireshark when counter=4](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/shark_2.png?raw=true)
+
+Besides the wireshark captures, let's also get the Modbus documentation (https://www.prosoft-technology.com/kb/assets/intro_modbustcp.pdf). The documentation specifies that a modus request over TCP contains several parts: (Transaction ID, Protocol ID, Field Length, UnitID, function code and Data). It also specifies the size of these fields. Hence, I mapped the wireshark responses to the specification:
+
+| MODBUS protocol part | Transaction ID | Protocol Identifier | Field Length | UnitID | Function Code | Data |
+|-----:|-----------|-----------|-----------|-----------|-----------|-----------|
+|Size|2 bytes| 2 bytes | 2 bytes | 1 byte | 1 byte | Variable |
+|Transmission 1 |B7 98| 00 00 | 00 0 | 01 | 03 | 00 01 00 01 |
+|Receive 1 |B7 98| 00 00 | 00 05 | 01 | 03 | 02 00 01 |
+|Transmission 2 |3F D1| 00 00 | 	00 06 | 01 | 03 | 00 01 00 01 |
+|Receive 1 |3F D1| 00 00 | 	00 05 | 01 | 03 | 02 00 04 |
+
+We can clearly see that the transmission follows the protocol  and that the function call 03 is used to query the holding register. We also recognize that we are reading address 1, and can observe the values of our counter (holding register).
 
 

@@ -38,7 +38,7 @@ Additionally, we need to make sure that our blocks are mapped explicitly to a me
 To avoid having to scan all memory ranges, you could now check the location in the settings menu, under modbus address space. 
 Our address is the first address, mapped to modbus of a holding register. Hence the value of the counter should be at address position one. Note that we are looking for a holding register (HR) and not a coil, so don't get confused with the address type V, indicating the range of values that is possible: https://www.csimn.com/CSI_pages/Modbus101.html.
 
-More information can be found: https://support.industry.siemens.com/cs/mdm/100782807?c=85315142923&lc=en-US![image](https://github.com/user-attachments/assets/6c348fd5-9b53-4a48-a073-459a042ff75e)
+More information can be found at the website of <a href="https://support.industry.siemens.com/cs/mdm/100782807?c=85315142923&lc=en-US">Siemens</a> 
 
 ![Picture of configuration screen](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/modbusAddressSpace.png?raw=true)
 
@@ -75,7 +75,7 @@ At first, let's do this manually through the PLC. By escaping the program and fo
 5. Move the arrow to the upper right and press up or down to increase/decrease the value
 6. Press 'OK
 
-As a next step, let's do this in python by using the following script:
+As a next step, let's do this in python. Python has multiple modbus libaries, I picked with the pymodbusTCP which is documented <a href="https://pymodbustcp.readthedocs.io/en/latest/">here</a>. As a result, I build the following script:
 
 ```
 # pip install pymodbustcp

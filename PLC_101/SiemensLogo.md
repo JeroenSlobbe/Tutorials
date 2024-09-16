@@ -117,7 +117,6 @@ Besides the wireshark captures, let's also get the <a href="https://www.prosoft-
 
 We can clearly see that the transmission follows the protocol  and that the function call 03 is used to query the holding register. We also recognize that we are reading address 1, and can observe the values of our counter (holding register).
 
-
 | CODE | FUNCTION | Reference |
 |-----:|-----------|-----------|
 |01|	Read Coil (output) status	|0xxxx|
@@ -129,12 +128,7 @@ We can clearly see that the transmission follows the protocol  and that the func
 |16|	Preset Multiple Registers	|4xxxx|
 |17|	Report Slave ID	|Hidden|
 
-
 When it comes to the variable data, we know from the python function that both the number of bytes to obtain, as well as the address is send.  If you change the address to 7, and the number of values to 3, you will see that the variable data becomes 00 07 00 03. Indicating that the first two bytes define the address to obtain and the second two bytes, specify the number of values to obtain.
 
-For the response, if the function code that was send is send back, this is a positive response. The data field of the response, first contains the number of bytes of the response and the actual bytes. So in our case [02] [00 004], which indeed are the two bytes making up for the counter.![image](https://github.com/user-attachments/assets/e5152b52-284f-423a-a06d-cff7405ff6ba)
-
-
-
-
+For the response, if the function code that was send is send back, this is a positive response. The data field of the response, first contains the number of bytes of the response and the actual bytes. So in our case [02] [00 004], which indeed are the two bytes making up for the counter.
 

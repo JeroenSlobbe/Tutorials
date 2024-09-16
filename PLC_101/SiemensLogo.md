@@ -3,10 +3,12 @@
 ## Shopping
 For this demo, I used the Siemens Logo, Siemens, Siemens power adapter, circuit breaker and proximity sensor
 
-	• https://www.amazon.nl/gp/product/B097C4QNJZ/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1
-	• https://www.amazon.nl/Siemens-6EP332-6SB00-0AY0-stroomadapter-omvormer-meerkleurig/dp/B075DKVZV3
-	• https://www.amazon.nl/dp/B007AKRLIC?ref=ppx_yo2ov_dt_b_fed_asin_title
-	• https://www.amazon.nl/dp/B086V84XJF?ref=ppx_yo2ov_dt_b_fed_asin_title
+| ID | Item | URL |
+|-----:|-----------|-----------|
+|     1| Siemens LOGO    |https://www.amazon.nl/gp/product/B097C4QNJZ|
+|     2| Siemens Power Adapter    |https://www.amazon.nl/Siemens-6EP332-6SB00-0AY0-stroomadapter-omvormer-meerkleurig/dp/B075DKVZV3|
+|     3| Circuit breaker    |https://www.amazon.nl/dp/B007AKRLIC?ref=ppx_yo2ov_dt_b_fed_asin_title|
+|     4| Proximity sensor    |https://www.amazon.nl/dp/B086V84XJF?ref=ppx_yo2ov_dt_b_fed_asin_titleZ|
 
 Finally, I used the power plug of an old mixer to power the setup.
 

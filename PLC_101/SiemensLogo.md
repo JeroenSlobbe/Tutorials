@@ -111,9 +111,9 @@ Besides the wireshark captures, let's also get the <a href="https://www.prosoft-
 |-----:|-----------|-----------|-----------|-----------|-----------|-----------|
 |Size|2 bytes| 2 bytes | 2 bytes | 1 byte | 1 byte | Variable |
 |Transmission 1 |B7 98| 00 00 | 00 00 | 01 | 03 | 00 01 00 01 |
-|Receive 1 |B7 98| 00 00 | 00 05 | 01 | 03 | 02 00 01 |
+|Receive 1 |B7 98| 00 00 | 00 05 | 01 | 03 | [02] 00 01 |
 |Transmission 2 |3F D1| 00 00 | 	00 06 | 01 | 03 | 00 01 00 01 |
-|Receive 1 |3F D1| 00 00 | 	00 05 | 01 | 03 | 02 00 04 |
+|Receive 1 |3F D1| 00 00 | 	00 05 | 01 | 03 | [02] 00 04 |
 
 We can clearly see that the transmission follows the protocol  and that the function call 03 is used to query the holding register. We also recognize that we are reading address 1, and can observe the values of our counter (holding register).
 

@@ -65,7 +65,7 @@ During the configuration and memory mapping, we already found that the address o
 
 ![Picture of modbustools](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/modbustools.png?raw=true)
 
-## Remotely manipulate the PLC values
+## Remotely manipulate the PLC values through Modbus
 Now that Modbus is enabled and the parameters are mapped, we should be able to remotely manipulate them.
 At first, let's do this manually through the PLC. By escaping the program and follow the steps below, you should be able to manually increase the counter (without putting metal objects in front of the sensor):
 

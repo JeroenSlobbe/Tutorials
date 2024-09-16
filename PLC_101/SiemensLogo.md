@@ -23,6 +23,8 @@ After wiring the device and testing it, I was ready to move it to the next stage
 To 'program'  the device, you could drag and drop boxes into the diagram and needly connect them together. 
 First drag and drop: an Digital.Input, Digital.Status 1 (high), Digital.Output, Counter.Up/Down counter, Basic function.AND and Miscellanous.Message texts block to the field.
 
+![Picture of plc code](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/code.jpg?raw=true)
+
 Than wire and order them, as in the picture above. Double click the counter block and set the On parameter to 100 and the start value to 0. 
 
 Secondly, double click the message text block and select the counter (B001, in the block overview on the left). Then click the counter in the parameter block and double click it. It will now appear in the message box below. Finally, you could add some text (like counter:) to the block.
@@ -36,7 +38,7 @@ Additionally, we need to make sure that our blocks are mapped explicitly to a me
 ![Picture of configuration screen](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/memoryMapping.png?raw=true)
 
 To avoid having to scan all memory ranges, you could now check the location in the settings menu, under modbus address space. 
-Our address is the first address, mapped to modbus of a holding register. Hence the value of the counter should be at address position one. Note that we are looking for a holding register (HR) and not a coil, so don't get confused with the address type V, indicating the range of values that is possible: https://www.csimn.com/CSI_pages/Modbus101.html.
+Our address is the first address, mapped to modbus of a holding register. Hence the value of the counter should be at address position one. Note that we are looking for a holding register (HR) and not a coil, so don't get confused with the address type V, indicating the range of values that is possible. More information about modbus addressing can be found <a href="https://www.csimn.com/CSI_pages/Modbus101.html">here</a>
 
 More information can be found at the website of <a href="https://support.industry.siemens.com/cs/mdm/100782807?c=85315142923&lc=en-US">Siemens</a> 
 
@@ -77,7 +79,7 @@ At first, let's do this manually through the PLC. By escaping the program and fo
 
 As a next step, let's do this in python. Python has multiple modbus libaries, I picked with the pymodbusTCP which is documented <a href="https://pymodbustcp.readthedocs.io/en/latest/">here</a>. As a result, I build the following script:
 
-```
+```python
 # pip install pymodbustcp
 # Documentation: https://pymodbustcp.readthedocs.io/en/latest/
 

@@ -103,7 +103,7 @@ To get a better understanding of the Modbus protocol, let's break it down. First
 ![Screenshot of wireshark when counter=1](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/shark_1.png?raw=true)
 ![Screenshot of wireshark when counter=4](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/shark_2.png?raw=true)
 
-Besides the wireshark captures, let's also get the Modbus documentation (https://www.prosoft-technology.com/kb/assets/intro_modbustcp.pdf). The documentation specifies that a modus request over TCP contains several parts: (Transaction ID, Protocol ID, Field Length, UnitID, function code and Data). It also specifies the size of these fields. Hence, I mapped the wireshark responses to the specification:
+Besides the wireshark captures, let's also get the <a href="https://www.prosoft-technology.com/kb/assets/intro_modbustcp.pdf">Modbus documentation</a>. The documentation specifies that a modus request over TCP contains several parts: (Transaction ID, Protocol ID, Field Length, UnitID, function code and Data). It also specifies the size of these fields. Hence, I mapped the wireshark responses to the specification:
 
 | MODBUS protocol part | Transaction ID | Protocol Identifier | Field Length | UnitID | Function Code | Data |
 |-----:|-----------|-----------|-----------|-----------|-----------|-----------|

@@ -15,3 +15,82 @@ To wire the device, I realized that the Dutch net power is asynchronous current 
 
 ![Picture of wiring](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/Wiring.png?raw=true)
 
+## Programming the PLC
+After wiring the device and testing it, I was ready to move it to the next stage: add some logic to it. To program the device you need Siemens LOGO SoftComfort version 8.4 (older versions will hunt you with connectivity errors).
+
+To 'program'  the device, you could drag and drop boxes into the diagram and needly connect them together. 
+First drag and drop: an Digital.Input, Digital.Status 1 (high), Digital.Output, Counter.Up/Down counter, Basic function.AND and Miscellanous.Message texts block to the field.
+
+Than wire and order them, as in the picture above. Double click the counter block and set the On parameter to 100 and the start value to 0. 
+
+Secondly, double click the message text block and select the counter (B001, in the block overview on the left). Then click the counter in the parameter block and double click it. It will now appear in the message box below. Finally, you could add some text (like counter:) to the block.
+
+## Enabling Modbus and memory mapping
+To make the program accessible through Modbus, we need to configure this. First by clicking enable Modbus in the general overview:
+![Picture of configuration screen](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/Enable%20Modbus.png?raw=true)
+
+Additionally, we need to make sure that our blocks are mapped explicitly to a memory address. To do this, open up the variable memory configuration (Tools -> Parameter VM Mapping) and add the counter block, to the desired address location:
+
+![Picture of configuration screen](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/memoryMapping.png?raw=true)
+
+To avoid having to scan all memory ranges, you could now check the location in the settings menu, under modbus address space. 
+Our address is the first address, mapped to modbus of a holding register. Hence the value of the counter should be at address position one. Note that we are looking for a holding register (HR) and not a coil, so don't get confused with the address type V, indicating the range of values that is possible: https://www.csimn.com/CSI_pages/Modbus101.html.
+
+More information can be found: https://support.industry.siemens.com/cs/mdm/100782807?c=85315142923&lc=en-US![image](https://github.com/user-attachments/assets/6c348fd5-9b53-4a48-a073-459a042ff75e)
+
+![Picture of configuration screen](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/modbusAddressSpace.png?raw=true)
+
+Finally,  we connect the PLC and upload the program to it. If you are having troubles with locating the PLC, make sure your network adapter is configured with an IP address that can reach the IP address of the PLC. Additionally, the Modbus TCP/IP port is assigned. To find the precise port, I ran an nmap scan: nmap 192.168.0.3 -p 500-510 and figured that in my case, port 510 was assigned.
+
+In case the program is running, but you still want to check the device IP address, you could use the following steps to escape the program:
+
+### Escaping the program
+0. The program is running on the PLC
+1. Click the 'Down' arrow
+2. See the data screen, then click right
+3. Click the Escape button to get to the menu
+
+Afterwards you could obtain the IP address (or, if the program isn't running, you could directly follow these steps:
+
+### Find IP address:
+0. Press arrow down to: 'network' and press 'OK'
+1. Select IP address and press 'OK'
+2. write down the IP, subnet mask and gateway
+
+During the configuration and memory mapping, we already found that the address of our counter is: 1. However, if you have an unfamiliar PLC, you could scan the PLC addresses using the modbustools (https://www.modbustools.com/download.html) , tool and simply click: 'scan addresses':
+
+![Picture of modbustools](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/modbustools.png?raw=true)
+
+## Remotely manipulate the PLC values
+Now that Modbus is enabled and the parameters are mapped, we should be able to remotely manipulate them.
+At first, let's do this manually through the PLC. By escaping the program and follow the steps below, you should be able to manually increase the counter (without putting metal objects in front of the sensor):
+
+### Changing program parameters
+0. Go to program
+1. Click: Set Parameter
+3. Click B001
+4. Click Cnt
+5. Move the arrow to the upper right and press up or down to increase/decrease the value
+6. Press 'OK
+
+As a next step, let's do this in python by using the following script:
+
+```
+# pip install pymodbustcp
+# Documentation: https://pymodbustcp.readthedocs.io/en/latest/
+
+from pyModbusTCP.client import ModbusClient
+myModbusClient = ModbusClient(host="192.168.0.3", port=510)
+address = 1
+numerOfValues = 1
+parameterPayload = 15
+
+response = myModbusClient.read_holding_registers(address, numerOfValues)
+
+print("[*] Response from PLC, address: ", address, " has value: ", response[0])
+#myModbusClient.write_single_register(address, parameterPayload)
+#print("[*] Writing: ", parameterPayload, " to address: ",address)
+
+```
+
+

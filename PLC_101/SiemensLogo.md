@@ -1,4 +1,5 @@
 # Building a PLC demo setup with Siemens Logo
+In this mini tutorial, you learn how to wire and set-up the Siemens Logo PLC and program it such that it can count interactions with a proximity sensor. Additionally, you will learn how these values can be remotely manipulated through Modbus, have a basic understanding of how the Modbus protocol works. Finally, you will build your own tooling to craft custom modbus packages.
 
 ## Shopping
 For this demo, I used the Siemens Logo, Siemens, Siemens power adapter, circuit breaker and proximity sensor

@@ -97,7 +97,7 @@ print("[*] Response from PLC, address: ", address, " has value: ", response[0])
 
 ```
 
-## Analyse TCP communication
+### Analyse modbus TCP communication
 To get a better understanding of the Modbus protocol, let's break it down. First we need <a href="https://www.wireshark.org">Wireshark</a>  to see what goes over the line. Now, let's request the Holding Register two times. One time when the counter is 1 and the second time when the counter is 4. As you can see in the Wireshark capture below, the request to obtain the address through Modbus is made over TCP port 510.
 
 Transmission 1, with counter = 1

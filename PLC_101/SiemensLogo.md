@@ -132,7 +132,8 @@ When it comes to the variable data, we know from the python function that both t
 
 For the response, if the function code that was send is send back, this is a positive response. The data field of the response, first contains the number of bytes of the response and the actual bytes. So in our case [02] [00 004], which indeed are the two bytes making up for the counter.
 
-Ok, lets verify this. In python there is a needy libary that aids you in building TCP traffic from scratch. It's called: <a href="https://scapy.readthedocs.io/en/latest/introduction.html" scapy</a>
+Ok, lets verify this. In python there is a needy libary that aids you in building TCP traffic from scratch. It's called: 
+<a href="https://scapy.readthedocs.io/en/latest/introduction.html">Scapy</a>
 
 ```python
 # pip install scapy

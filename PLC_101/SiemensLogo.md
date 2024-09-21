@@ -10,6 +10,7 @@ For this demo, I used the Siemens Logo (full documentation can be found <a href=
 |     2| Siemens Power Adapter    |https://www.amazon.nl/Siemens-6EP332-6SB00-0AY0-stroomadapter-omvormer-meerkleurig/dp/B075DKVZV3|
 |     3| Circuit breaker    |https://www.amazon.nl/dp/B007AKRLIC?ref=ppx_yo2ov_dt_b_fed_asin_title|
 |     4| Proximity sensor    |https://www.amazon.nl/dp/B086V84XJF?ref=ppx_yo2ov_dt_b_fed_asin_titleZ|
+|     5| Industrial Traffic Light | https://www.amazon.nl/dp/B0C8BQ12QR?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1# |
 
 Finally, I used the power plug of an old mixer to power the setup.
 

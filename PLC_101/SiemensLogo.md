@@ -2,7 +2,7 @@
 In this mini tutorial, you learn how to wire and set-up the Siemens Logo PLC and program it such that it can count interactions with a proximity sensor. Additionally, you will learn how these values can be remotely manipulated through Modbus, have a basic understanding of how the Modbus protocol works. Finally, you will build your own tooling to craft custom modbus packages.
 
 ## Shopping
-For this demo, I used the Siemens Logo (full documentation can be found <a href="https://cache.industry.siemens.com/dl/files/461/16527461/att_82564/v1/Logo_e.pdf">here</a>, Siemens, Siemens power adapter, circuit breaker and proximity sensor
+For this demo, I used the Siemens Logo (full documentation can be found <a href="https://cache.industry.siemens.com/dl/files/461/16527461/att_82564/v1/Logo_e.pdf">here</a>, Siemens, Siemens power adapter, circuit breaker, an industrial alarm and a proximity sensor.
 
 | ID | Item | URL |
 |-----:|-----------|-----------|
@@ -15,7 +15,7 @@ For this demo, I used the Siemens Logo (full documentation can be found <a href=
 Finally, I used the power plug of an old mixer to power the setup.
 
 ## Wiring the device
-To wire the device, I realized that the Dutch net power is asynchronous current (AC) at 230V, while the PLC needed a direct current (DC) at 24V. Hence I bought the adapter and now we are ready to move to the wiring stage. First I wired the lifeline (brown/red, indicated with 1 on the circuit breaker, or L on the power adapter) and the Neutral line (blue, on the power plug, yellow/green towards the PLC, indicated with N) on the circuit breaker. Afterwards,. I wired the Neutral line of the circuit breaker, to the Neutral input of the power adapter (N, at the top of the device) and the Life line of the circuit breaker (indicated with a 2, at the bottom of the device) to the N on the power adapter. As a next step, I wired the + of the power adapter, towards the L+ input (top of the PLC), and the N neutral low from the power adapter to the M on the top of the PLC.Finally, I wired the Brown cable from the proximity sensor to the + input of the power adapter, additionally, I wired the blue wire of the proximity sensor to the - input of the power adapter, and the black wire of the proximity sensor, into the I1 input of the PLC.
+To wire the device, I realized that the Dutch net power is asynchronous current (AC) at 230V, while the PLC needed a direct current (DC) at 24V. Hence I bought the adapter. First I wired the lifeline (brown/red, indicated with 1 on the circuit breaker, or L on the power adapter) and the Neutral line (blue, on the power plug, yellow/green towards the PLC, indicated with N) on the circuit breaker. Afterwards,. I wired the Neutral line of the circuit breaker, to the Neutral input of the power adapter (N, at the top of the device) and the Life line of the circuit breaker (indicated with a 2, at the bottom of the device) to the N on the power adapter. As a next step, I wired the + of the power adapter, towards the L+ input (top of the PLC), and the N neutral low from the power adapter to the M on the top of the PLC.Finally, I wired the Brown cable from the proximity sensor to the + input of the power adapter, additionally, I wired the blue wire of the proximity sensor to the - input of the power adapter, and the black wire of the proximity sensor, into the I1 input of the PLC. Finally, I added all the colored wires of the alarm light to a clipper and connected the clipper with the first M output, the powerline of the industrial traffic light (the brownline) went into the Q1 output of the Siemens Logo.
 
 ![Picture of wiring](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/Wiring.png?raw=true)
 
@@ -23,13 +23,13 @@ To wire the device, I realized that the Dutch net power is asynchronous current 
 After wiring the device and testing it, I was ready to move it to the next stage: add some logic to it. To program the device you need Siemens LOGO SoftComfort version 8.4 (older versions will hunt you with connectivity errors).
 
 To 'program'  the device, you could drag and drop boxes into the diagram and needly connect them together. 
-First drag and drop: an Digital.Input, Digital.Status 1 (high), Digital.Output, Counter.Up/Down counter, Basic function.AND and Miscellanous.Message texts block to the field.
+First drag and drop: an Digital.Input, Digital.Status 1 (high), 2x Digital.Output, Counter.Up/Down counter, basic function.AND, basic functions.NOT and Miscellanous.Message texts block to the diagram.
 
 ![Picture of plc code](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/code.jpg?raw=true)
 
 Than wire and order them, as in the picture above. Double click the counter block and set the On parameter to 100 and the start value to 0. 
 
-Secondly, double click the message text block and select the counter (B001, in the block overview on the left). Then click the counter in the parameter block and double click it. It will now appear in the message box below. Finally, you could add some text (like counter:) to the block.
+Secondly, double click the message text block and select the counter (B001, in the block overview on the left). Then click the counter in the parameter block and double click it. It will now appear in the message box below. Afterwards, you could add some text (like counter:) to the block. Finally, I wanted the alarm to go off, everytime the proximity sensor was in contact with a piece of metal. After realizing the sensor input was always high, I added the basic function NOT (B004) to the diagram and connected it to the proximity sensor. Additionally, I added the output block (Q1) to the not block. Now everytime the proxmity sensor touches a piece of metal, the alarm goes off.
 
 ## Enabling Modbus and memory mapping
 To make the program accessible through Modbus, we need to configure this. First by clicking enable Modbus in the general overview:

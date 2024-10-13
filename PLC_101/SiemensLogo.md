@@ -11,6 +11,7 @@ For this demo, I used the Siemens Logo (full documentation can be found <a href=
 |     3| Circuit breaker    |https://www.amazon.nl/dp/B007AKRLIC?ref=ppx_yo2ov_dt_b_fed_asin_title|
 |     4| Proximity sensor    |https://www.amazon.nl/dp/B086V84XJF?ref=ppx_yo2ov_dt_b_fed_asin_titleZ|
 |     5| Industrial Traffic Light | https://www.amazon.nl/dp/B0C8BQ12QR?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1# |
+|     6| USB to Ethernet adapter | https://www.bol.com/nl/nl/p/garpex-usb2-0-naar-rj45-ethernet-lan-adapter/9200000111011596/ |
 
 Finally, I used the power plug of an old mixer to power the setup.
 

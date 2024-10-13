@@ -232,3 +232,45 @@ Another way to view the counter variable is through the webserver. The webserver
 You can now access the PLC through your web browser: https://192.168.0.3 and login with the assigned username/password.  In the web application, you can view the logo variable, which displays the value of the counter and its corresponding address. Although changing the counter through a python script using Modbus feels more like hacking, you can easily change this parameter via the web interface as well.
 
 ![Update counter](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/webApplicationVariable.png?raw=true)
+
+## Evaluating security capabilities
+The Siemens Logo comes with some security properties and warnings. In general, Siemens makes it clear that the stakes of incidents with the PLC can cause safety problems with people and the environment. Additionally, the configuration often re-iterates that enabling a feature causes a security risks and urges the user to have a whole lot of additional cyber security controls in place.
+![Cyber warmomgs](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/cyber1.png?raw=true)
+
+### Access control list
+As of Siemens Logo version: (0BA8), Siemens offers an Access Control List (ACL) for connections. You can find the configuration screen under Online Settings -> Access Control settings. By enabling this allowlist, you can limit the IP addresses that can directly access the device.
+![Cyber warmomgs](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/acl.png?raw=true)
+
+To validate this functionality, I attached the USB to Ethernet adapter to my PC and it got Ethernet 4 assigned. The initial IP address assigned to the adapter was 192.168.0.2
+
+'''console
+netsh interface ipv4 show config "Ethernet 4"
+Configuration for interface "Ethernet 4"
+    DHCP enabled:                         No
+    IP Address:                           192.168.0.2
+    Subnet Prefix:                        192.168.0.0/24 (mask 255.255.255.0)
+    InterfaceMetric:                      35
+    Statically Configured DNS Servers:    None
+    Register with which suffix:           Primary only
+    Statically Configured WINS Servers:   None
+'''
+
+This was also the IP address I put in the access control list, with the main thought that after applying the setting, my connection wouldn't be cut of directly. To validate the functionality, I changed the IP address of my adapter to an IP address not in the allowlist. In this case 192.168.0.5
+
+'''console
+netsh interface ipv4 set address name="Ethernet 4" static 192.168.0.5
+'''
+
+'''console
+netsh interface ipv4 show config "Ethernet 4"
+Configuration for interface "Ethernet 4"
+    DHCP enabled:                         No
+    IP Address:                           192.168.0.5
+    Subnet Prefix:                        192.168.0.0/24 (mask 255.255.255.0)
+    InterfaceMetric:                      35
+    Statically Configured DNS Servers:    None
+    Register with which suffix:           Primary only
+    Statically Configured WINS Servers:   None
+'''
+
+

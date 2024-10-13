@@ -3,9 +3,10 @@ In this mini tutorial, you learn how to wire and set-up the Siemens Logo PLC and
 
 # Table of contents
 <!--ts-->
-   * [Prerequisites](#shopping)
-   * [Wiring the device](#Wiring-the-device)
-   * [Programming the device](#Programming-the-PLC-using-block-logic)
+   * [## Building the demo environment](#Building-the-demo-environment)
+     * [Prerequisites](#shopping)
+     * [Wiring the device](#Wiring-the-device)
+     * [Programming the device](#Programming-the-PLC-using-block-logic)
    * [Remote Control](#Remote-control)
      * [Enable Modbus and virtual memory mapping](#Enabling-Modbus-and-memory-mapping)
      * [Remote manipulation](#Remotely-manipulate-the-PLC-values-through-Modbus)
@@ -15,8 +16,8 @@ In this mini tutorial, you learn how to wire and set-up the Siemens Logo PLC and
      * [Access Control](#Access-control-list)
 <!--te-->
 
-
-## Shopping
+## Building the demo environment
+### Shopping
 For this demo, I used the Siemens Logo 6ED1052 1CC08-0BA2 (full documentation can be found <a href="https://cache.industry.siemens.com/dl/files/461/16527461/att_82564/v1/Logo_e.pdf">here</a>, Siemens, Siemens power adapter, circuit breaker, an industrial alarm and a proximity sensor.
 
 | ID | Item | URL |
@@ -30,7 +31,7 @@ For this demo, I used the Siemens Logo 6ED1052 1CC08-0BA2 (full documentation ca
 
 Finally, I used the power plug of an old mixer to power the setup.
 
-## Wiring the device
+### Wiring the device
 To wire the device, I realized that the Dutch net power is asynchronous current (AC) at 230V, while the PLC needed a direct current (DC) at 24V. Hence I bought the adapter. First I wired the lifeline (brown/red, indicated with 1 on the circuit breaker, or L on the power adapter) and the Neutral line (blue, on the power plug, yellow/green towards the PLC, indicated with N) on the circuit breaker. Afterwards,. I wired the Neutral line of the circuit breaker, to the Neutral input of the power adapter (N, at the top of the device) and the Life line of the circuit breaker (indicated with a 2, at the bottom of the device) to the N on the power adapter. As a next step, I wired the + of the power adapter, towards the L+ input (top of the PLC), and the N neutral low from the power adapter to the M on the top of the PLC.Finally, I wired the Brown cable from the proximity sensor to the + input of the power adapter, additionally, I wired the blue wire of the proximity sensor to the - input of the power adapter, and the black wire of the proximity sensor, into the I1 input of the PLC. Finally, I added all the colored wires of the alarm light to a clipper and connected the clipper with the first M output, the powerline of the industrial traffic light (the brownline) went into the Q1 output of the Siemens Logo.
 
 ![Picture of wiring](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/Wiring.png?raw=true)

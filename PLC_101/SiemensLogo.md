@@ -251,6 +251,52 @@ You can now access the PLC through your web browser: https://192.168.0.3 and log
 
 ![Update counter](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/webApplicationVariable.png?raw=true)
 
+### Query the webserver using python
+It seems like part of the functions the javascript of the web application is calling (when login), do not require a password when calling directly. For example, reading the status of the PLC through an API call can be done with the following python script:
+
+```python
+import requests
+import json
+
+# PLC IP Address (Adjust to your LOGO! PLC's IP address)
+PLC_IP = "192.168.0.3"
+
+# Endpoint to get device info
+TargetURL = "http://192.168.0.3/status/devinfo"
+
+def get_device_info():
+    try:
+        # Send GET request to the PLC
+        response = requests.get(TargetURL)
+
+        # Check if the request was successful (HTTP 200 OK)
+        if response.status_code == 200:
+            print("[+] Successfully retrieved device info")
+            
+            # Parse the JSON response
+            dev_info = response.json()  # Automatically parses JSON into a Python dictionary
+
+            # Extract the variables from the JSON data
+            dev_series = dev_info.get("dev_series")
+            dev_type = dev_info.get("dev_type")
+            fw_ver = dev_info.get("fw_ver")
+            ip_addr = dev_info.get("ip_addr")
+
+            # Print the extracted variables
+            print("Device Series: ", dev_series)
+            print("Device Type: ", dev_type)
+            print("Firmware Version: ", fw_ver)
+            print("IP Address: ", ip_addr)
+        else:
+            print(f"Failed to retrieve data, HTTP status code: {response.status_code}")
+    
+    except Exception as e:
+        print(f"Error occurred: {e}")
+
+# Call the function to get the device info
+get_device_info()
+```
+
 ## Evaluating security capabilities
 The Siemens Logo comes with some security properties and warnings. In general, Siemens makes it clear that the stakes of incidents with the PLC can cause safety problems with people and the environment. Additionally, the configuration often re-iterates that enabling a feature causes a security risks and urges the user to have a whole lot of additional cyber security controls in place.
 ![Cyber warmomgs](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/cyber.png?raw=true)

@@ -6,6 +6,11 @@ In this mini tutorial, you learn how to wire and set-up the Siemens Logo PLC and
    * [Prerequisites](#shopping)
    * [Wiring the device](#Wiring-the-device)
    * [Programming the device](#Programming-the-PLC-using-block-logic)
+   * [Remote Control](#Remote-control)
+     * [Enable Modbus and virtual memory mapping](#Enabling-Modbus-and-memory-mapping)
+     * [Remote manipulation](#Remotely-manipulate-the-PLC-values-through-Modbus)
+     * [Remote manipulation with python and modbus](#Remotely-changing-program-parameters-using-python-and-Modbus)
+     * [Remote manipulation through the webserver](#Remotely-manipulate-the-PLC-values-through-the-webserver)
    * [Security features](#Evaluating-security-capabilities)
      * [Access Control](#Access-control-list)
 <!--te-->
@@ -42,7 +47,8 @@ Than wire and order them, as in the picture above. Double click the counter bloc
 
 Secondly, double click the message text block and select the counter (B001, in the block overview on the left). Then click the counter in the parameter block and double click it. It will now appear in the message box below. Afterwards, you could add some text (like counter:) to the block. Finally, I wanted the alarm to go off, everytime the proximity sensor was in contact with a piece of metal. After realizing the sensor input was always high, I added the basic function NOT (B004) to the diagram and connected it to the proximity sensor. Additionally, I added the output block (Q1) to the not block. Now everytime the proxmity sensor touches a piece of metal, the alarm goes off.
 
-## Enabling Modbus and memory mapping
+## Remote Control
+### Enabling Modbus and memory mapping
 To make the program accessible through Modbus, we need to configure this. First by clicking enable Modbus in the general overview:
 ![Picture of configuration screen](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/Enable%20Modbus.png?raw=true)
 
@@ -61,7 +67,7 @@ Finally,  we connect the PLC and upload the program to it. If you are having tro
 
 In case the program is running, but you still want to check the device IP address, you could use the following steps to escape the program:
 
-### Escaping the program
+#### Escaping the program
 0. The program is running on the PLC
 1. Click the 'Down' arrow
 2. See the data screen, then click right
@@ -69,7 +75,7 @@ In case the program is running, but you still want to check the device IP addres
 
 Afterwards you could obtain the IP address (or, if the program isn't running, you could directly follow these steps:
 
-### Find IP address:
+#### Find IP address:
 0. Press arrow down to: 'network' and press 'OK'
 1. Select IP address and press 'OK'
 2. write down the IP, subnet mask and gateway
@@ -78,11 +84,10 @@ During the configuration and memory mapping, we already found that the address o
 
 ![Picture of modbustools](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/modbustools.png?raw=true)
 
-## Remotely manipulate the PLC values through Modbus
+### Remotely manipulate the PLC values through Modbus
 Now that Modbus is enabled and the parameters are mapped, we should be able to remotely manipulate them.
 At first, let's do this manually through the PLC. By escaping the program and follow the steps below, you should be able to manually increase the counter (without putting metal objects in front of the sensor):
 
-### Remotely changing program parameters using python
 0. Go to program
 1. Click: Set Parameter
 3. Click B001
@@ -90,6 +95,7 @@ At first, let's do this manually through the PLC. By escaping the program and fo
 5. Move the arrow to the upper right and press up or down to increase/decrease the value
 6. Press 'OK
 
+### Remotely changing program parameters using python
 As a next step, let's do this in python. Python has multiple modbus libaries, I picked with the pymodbusTCP which is documented <a href="https://pymodbustcp.readthedocs.io/en/latest/">here</a>. As a result, I build the following script:
 
 ```python
@@ -110,7 +116,7 @@ print("[*] Response from PLC, address: ", address, " has value: ", response[0])
 
 ```
 
-### Analyse modbus TCP communication
+#### Analyse modbus TCP communication
 To get a better understanding of the Modbus protocol, let's break it down. First we need <a href="https://www.wireshark.org">Wireshark</a>  to see what goes over the line. Now, let's request the Holding Register two times. One time when the counter is 1 and the second time when the counter is 4. As you can see in the Wireshark capture below, the request to obtain the address through Modbus is made over TCP port 510.
 
 Transmission 1, with counter = 1
@@ -234,7 +240,7 @@ if(options.linterfaces):
 else:
         sendModbusPackageAndCaptureResponse()
 ```
-## Remotely manipulate the PLC values through the webserver
+### Remotely manipulate the PLC values through the webserver
 Another way to view the counter variable is through the webserver. The webserver can be enabled in the 'online settings' menu, under the 'access control settings menu'. Let's enable the unsecure variant for the sake of learning about security and set a password.
 
 ![Enable webserver](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/webserver.png?raw=true)

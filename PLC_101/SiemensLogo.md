@@ -272,5 +272,6 @@ Configuration for interface "Ethernet 4"
     Register with which suffix:           Primary only
     Statically Configured WINS Servers:   None
 ```
+After validating the program connectivity, I noticed, I could still access it (even after rebooting, re-attaching the adapter etc.). Finally, I realized that there was a little note in the documentation: (0BA8 and later versions only). Than I looked at the side of my PLC, and noticed that I have version: 6ED1052 1CC08-0bA2. As such the security control is not supported.
 
 

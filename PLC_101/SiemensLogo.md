@@ -235,7 +235,7 @@ You can now access the PLC through your web browser: https://192.168.0.3 and log
 
 ## Evaluating security capabilities
 The Siemens Logo comes with some security properties and warnings. In general, Siemens makes it clear that the stakes of incidents with the PLC can cause safety problems with people and the environment. Additionally, the configuration often re-iterates that enabling a feature causes a security risks and urges the user to have a whole lot of additional cyber security controls in place.
-![Cyber warmomgs](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/cyber1.png?raw=true)
+![Cyber warmomgs](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/cyber.png?raw=true)
 
 ### Access control list
 As of Siemens Logo version: (0BA8), Siemens offers an Access Control List (ACL) for connections. You can find the configuration screen under Online Settings -> Access Control settings. By enabling this allowlist, you can limit the IP addresses that can directly access the device.
@@ -243,7 +243,7 @@ As of Siemens Logo version: (0BA8), Siemens offers an Access Control List (ACL) 
 
 To validate this functionality, I attached the USB to Ethernet adapter to my PC and it got Ethernet 4 assigned. The initial IP address assigned to the adapter was 192.168.0.2
 
-'''console
+```console
 netsh interface ipv4 show config "Ethernet 4"
 Configuration for interface "Ethernet 4"
     DHCP enabled:                         No
@@ -253,15 +253,15 @@ Configuration for interface "Ethernet 4"
     Statically Configured DNS Servers:    None
     Register with which suffix:           Primary only
     Statically Configured WINS Servers:   None
-'''
+```
 
 This was also the IP address I put in the access control list, with the main thought that after applying the setting, my connection wouldn't be cut of directly. To validate the functionality, I changed the IP address of my adapter to an IP address not in the allowlist. In this case 192.168.0.5
 
-'''console
+```console
 netsh interface ipv4 set address name="Ethernet 4" static 192.168.0.5
-'''
+```
 
-'''console
+```console
 netsh interface ipv4 show config "Ethernet 4"
 Configuration for interface "Ethernet 4"
     DHCP enabled:                         No
@@ -271,6 +271,6 @@ Configuration for interface "Ethernet 4"
     Statically Configured DNS Servers:    None
     Register with which suffix:           Primary only
     Statically Configured WINS Servers:   None
-'''
+```
 
 

@@ -216,8 +216,18 @@ oparser.add_option("-q", "--tp", dest="targetport", help="Target port", metavar=
 oparser.add_option("-g", "--ag", dest="ifaceGUID", help="Adapter GUID (prefixes and {} will be added as part of the script", default="00000000-0000-0000-0000-000000000000")
 (options,args) = oparser.parse_args(sys.argv)
 
+## Enabling Modbus and memory mapping
+
 if(options.linterfaces):
     listInterfaces()
 else:
         sendModbusPackageAndCaptureResponse()
 ```
+## Remotely manipulate the PLC values through the webserver
+Another way to view the counter variable is through the webserver. The webserver can be enabled in the 'online settings' menu, under the 'access control settings menu'. Let's enable the unsecure variant for the sake of learning about security and set a password.
+
+![Enable webserver](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/webserver.png?raw=true)
+
+You can now access the PLC through your web browser: https://192.168.0.3 and login with the assigned username/password.  In the web application, you can view the logo variable, which displays the value of the counter and its corresponding address. Although changing the counter through a python script using Modbus feels more like hacking, you can easily change this parameter via the web interface as well.
+
+![Update counter](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/webApplicationVariable.png?raw=true)

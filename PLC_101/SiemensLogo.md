@@ -6,7 +6,7 @@ In this mini tutorial, you learn how to wire and set-up the Siemens Logo PLC and
    * [## Building the demo environment](#Building-the-demo-environment)
      * [Prerequisites](#shopping)
      * [Wiring the device](#Wiring-the-device)
-     * [Programming the device](#Programming-the-PLC-using-block-logic)
+     * [Programming the device](#Programming-the-PLC-using-Functional-Block-Diagram-(FBD))
    * [Remote Control](#Remote-control)
      * [Enable Modbus and virtual memory mapping](#Enabling-Modbus-and-memory-mapping)
      * [Remote manipulation](#Remotely-manipulate-the-PLC-values-through-Modbus)
@@ -36,7 +36,7 @@ To wire the device, I realized that the Dutch net power is asynchronous current 
 
 ![Picture of wiring](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/Wiring.png?raw=true)
 
-## Programming the PLC using block logic
+## Programming the PLC using Functional Block Diagram (FBD) 
 After wiring the device and testing it, I was ready to move it to the next stage: add some logic to it. To program the device you need Siemens LOGO SoftComfort version 8.4 (older versions will hunt you with connectivity errors).
 
 To 'program'  the device, you could drag and drop boxes into the diagram and needly connect them together. 

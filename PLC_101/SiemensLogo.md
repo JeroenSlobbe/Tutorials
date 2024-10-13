@@ -4,7 +4,7 @@ In this mini tutorial, you learn how to wire and set-up the Siemens Logo PLC and
 # Table of contents
 <!--ts-->
    * [Prerequisites](#shopping)
-   * [Wiring the device](#Wiring the device)
+   * [Wiring the device](#Wiring-the-device)
    * [Programming the device](#Programming the PLC using block logic)
    * [Security features](#Evaluating security capabilities)
      * [Access Control](#Access control list)

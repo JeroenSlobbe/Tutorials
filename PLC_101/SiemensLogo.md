@@ -1,6 +1,17 @@
 # Building a PLC demo setup with Siemens Logo
 In this mini tutorial, you learn how to wire and set-up the Siemens Logo PLC and program it such that it can count interactions with a proximity sensor. Additionally, you will learn how these values can be remotely manipulated through Modbus, have a basic understanding of how the Modbus protocol works. Finally, you will build your own tooling to craft custom modbus packages.
 
+# Table of contents
+<!--ts-->
+   * [Prerequisites](#shopping)
+   * [Wiring the device](#Wiring the device)
+   * [Programming the device](#Programming the PLC using block logic)
+   * [Dependency](#dependency)
+   * [Security features](#Evaluating security capabilities)
+     * [Access Control](#Access control list)
+<!--te-->
+
+
 ## Shopping
 For this demo, I used the Siemens Logo 6ED1052 1CC08-0BA2 (full documentation can be found <a href="https://cache.industry.siemens.com/dl/files/461/16527461/att_82564/v1/Logo_e.pdf">here</a>, Siemens, Siemens power adapter, circuit breaker, an industrial alarm and a proximity sensor.
 
@@ -20,7 +31,7 @@ To wire the device, I realized that the Dutch net power is asynchronous current 
 
 ![Picture of wiring](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/Wiring.png?raw=true)
 
-## Programming the PLC
+## Programming the PLC using block logic
 After wiring the device and testing it, I was ready to move it to the next stage: add some logic to it. To program the device you need Siemens LOGO SoftComfort version 8.4 (older versions will hunt you with connectivity errors).
 
 To 'program'  the device, you could drag and drop boxes into the diagram and needly connect them together. 

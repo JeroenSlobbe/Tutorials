@@ -37,6 +37,8 @@ To wire the device, I realized that the Dutch net power is asynchronous current 
 ![Picture of wiring](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/Wiring.png?raw=true)
 
 ## Programming the PLC
+There are multiple ways to program the device, Function Block Diagram (FBD) and Ladder Logic are two common ways. The siemens logo soft comfort comes with a convenient button (highlighted in red in the ladder logic code example) to convert from one to the other, in case you have a strong preference.
+
 ### Programming the PLC using Functional Block Diagram
 After wiring the device and testing it, I was ready to move it to the next stage: add some logic to it. To program the device you need Siemens LOGO SoftComfort version 8.4 (older versions will hunt you with connectivity errors).
 
@@ -48,6 +50,9 @@ First drag and drop: an Digital.Input, Digital.Status 1 (high), 2x Digital.Outpu
 Than wire and order them, as in the picture above. Double click the counter block and set the On parameter to 100 and the start value to 0. 
 
 Secondly, double click the message text block and select the counter (B001, in the block overview on the left). Then click the counter in the parameter block and double click it. It will now appear in the message box below. Afterwards, you could add some text (like counter:) to the block. Finally, I wanted the alarm to go off, everytime the proximity sensor was in contact with a piece of metal. After realizing the sensor input was always high, I added the basic function NOT (B004) to the diagram and connected it to the proximity sensor. Additionally, I added the output block (Q1) to the not block. Now everytime the proxmity sensor touches a piece of metal, the alarm goes off.
+
+### Programming the PLC using Lader Logic
+![Picture of plc code](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/lad.jpg?raw=true)
 
 ## Remote Control
 ### Enabling Modbus and memory mapping

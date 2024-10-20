@@ -52,7 +52,10 @@ Than wire and order them, as in the picture above. Double click the counter bloc
 Secondly, double click the message text block and select the counter (B001, in the block overview on the left). Then click the counter in the parameter block and double click it. It will now appear in the message box below. Afterwards, you could add some text (like counter:) to the block. Finally, I wanted the alarm to go off, everytime the proximity sensor was in contact with a piece of metal. After realizing the sensor input was always high, I added the basic function NOT (B004) to the diagram and connected it to the proximity sensor. Additionally, I added the output block (Q1) to the not block. Now everytime the proxmity sensor touches a piece of metal, the alarm goes off.
 
 ### Programming the PLC using Lader Logic
-![Picture of plc code](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/lad.jpg?raw=true)
+To program the same application in ladder logic, you more or less that the same blocks as with the FBD program. It's important to notice that the counter and message block options (as part of the make contact constants) are only available, after, adding the  counter and message blocks. So better add them first: Constants.Make contact (select SF002),Constants.Make contact (Select C002), Constants.Relay Coil (select Q4) Constants.Make contact (input 1), Counter.Up/Down counter, Constants.Make contact (select high), Miscellaneous.Message text, Constants.Break contact, Constants.Relay coil
+
+After, adding the blocks, you need to configure them. The configuration of the counter, as well as the message block, is the same as the FBD program. Finally, you can wire the blocks, following the scheme below.
+![Picture of plc code](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/lad.png?raw=true)
 
 ## Remote Control
 ### Enabling Modbus and memory mapping

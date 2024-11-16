@@ -346,4 +346,51 @@ Configuration for interface "Ethernet 4"
 ```
 After validating the program connectivity, I noticed, I could still access it (even after rebooting, re-attaching the adapter etc.). Finally, I realized that there was a little note in the documentation: (0BA8 and later versions only). Than I looked at the side of my PLC, and noticed that I have version: 6ED1052 1CC08-0bA2. As such the security control is not supported.
 
+### Encryption in transit
+To enable HTTPS, you could go to the 'access control settings' and click the 'allow HTTTPS' only button. 
+![EnableSSL](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/enableSSL.png?raw=true)
+
+After, uploading the setting, you will notice that port 80/TCP is closed and that you can only access the web interface through HTTPS. This is a good start. Additionally, you will notice that popular browsers will throw an error message.
+![trust issues](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/SSL-error.png?raw=true)
+This is because the siemens logo root certificate is not (by default) trusted by your browser of system. To add the logo root certificate to your trusted certificates you could follow the Siemens <a href="https://support.industry.siemens.com/cs/mdm/109741041?c=136971280267&lc=en-FI">manual</a>. Besides, adding the certificate to your system root of trust, you also need to explicitly configure your browser, to allow for additional root certificates to be trusted. Not that in a factory, this will be a hassle. Security wise, you might want to rely on PKI within your organization. 
+
+To further assess the security of the SSL setup, I used <a href=" https://github.com/nabla-c0d3/sslyze">sslyze</a>, <a href="https://github.com/drwetter/testssl.sh.git">testssl.sh</a> using: docker run --rm -ti  drwetter/testssl.sh 192.168.0.3 and <a href="https://nmap.org/">nmap</a>: nmap -Pn --script ssl-cert,ssl-enum-ciphers -p 443 192.168.0.3.
+![checkSSL](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/testssl1.png?raw=true)
+![checkSSL](https://github.com/JeroenSlobbe/Tutorials/blob/main/PLC_101/img/testssl2.png?raw=true)
+
+```console
+nmap -Pn --script ssl-cert,ssl-enum-ciphers -p 443 192.168.0.3
+Starting Nmap 7.95 ( https://nmap.org ) at 2024-11-16 13:50 W. Europe Standard Time
+Nmap scan report for 192.168.0.3
+Host is up (0.00s latency).
+
+PORT    STATE SERVICE
+443/tcp open  https
+| ssl-enum-ciphers:
+|   TLSv1.2:
+|     ciphers:
+|       TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 (secp256r1) - A
+|     compressors:
+|       NULL
+|     cipher preference: indeterminate
+|     cipher preference error: Too few ciphers supported
+|_  least strength: A
+| ssl-cert: Subject: commonName=192.168.0.3/organizationName=SEWC/countryName=CN
+| Subject Alternative Name: IP Address:192.168.0.3
+| Issuer: commonName=LOGO! BM 8.4 4C-E7-05-71-28-EF/organizationName=SLC/countryName=CN
+| Public Key type: ec
+| Public Key bits: 256
+| Signature Algorithm: ecdsa-with-SHA256
+| Not valid before: 2024-09-01T00:00:00
+| Not valid after:  2025-09-01T00:00:00
+| MD5:   f6ff:1a61:b3d9:7acc:bfbc:3a3a:b306:4160
+|_SHA-1: e743:2686:d529:99d1:6717:78f2:727f:7104:e784:d0c4
+MAC Address: 4C:E7:05:71:28:EF (Siemens Industrial Automation Products, Chengdu)
+
+Nmap done: 1 IP address (1 host up) scanned in 3.84 seconds
+```
+At the moment of testing, modern cryptographic algorithms are used. The system doesn't' appear to be vulnerable for POODLE, DRWON, LOGJAM, Heartbleed and other TLS/SSL known vulnerabilities and the main challenge is getting the root of trust right by implementing your own PKI. When generating your own certificates, you can also fix the Certificate Revocation List (CRL) issue. So for the webserver we conclude that encryption in transit is offered.
+
+
+
 

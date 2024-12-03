@@ -1,0 +1,2 @@
+# 'Hacking' a dinosaurs with an infrared receiver/transmitter and ESP32
+It's the time of the year again where we receive and give, gifts! This time I got my hands on an infrared remotely controlled dinosaur and wondered, what else could I do with it? As a result, I started a quest for sniffing infrared traffic and build a PoC to capture and replay the IR signals with an ESP32.![image](https://github.com/user-attachments/assets/eb5568d2-3e50-4072-8859-5c95b4ba2deb)

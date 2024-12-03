@@ -16,7 +16,7 @@ Being aware of the technology being used, I decided to buy IR transmitters and r
 |-----:|-----------|-----------|
 |     1| ESP32    |https://www.amazon.nl/AZDelivery-ESP32-Development-compatibel-Inclusief/dp/B074RGW2VQ |
 |     2| IR receiver    | https://www.amazon.nl/dp/B07ZTQX59N |
-|     3| IT transmitter    |[https://www.amazon.nl/dp/B007AKRLIC?ref=ppx_yo2ov_dt_b_fed_asin_title](https://www.amazon.nl/dp/B07ZYZDW28 |
+|     3| IT transmitter    |https://www.amazon.nl/dp/B07ZYZDW28 |
 
 The IRremote <a href="https://github.com/Arduino-IRremote/Arduino-IRremote">libary</a> from ArminJo has built infrared implementations for most of the common protocols (NEC, Apple, Onkyo, Denon, Sharp, Panasonic, Kaseikyo,JVC,LG,RC5, RC6, Samsung, Sony, Universal Pulse Distance, Universal Pulse With, Universal Pulse Distance Width, Hash, Pronto, BoseWave, Bang & Olufsen, Lego, FAST, Whynter and MagiQuest). Additionally, the libary IrReceiver, has implemented functionality to recognize the protocol and make a suggestion how to replay the signal. This behaviour is quite similar to that of a network sniffer.
 

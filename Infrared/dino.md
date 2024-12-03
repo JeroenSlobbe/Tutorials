@@ -5,6 +5,7 @@ It's the time of the year again where we receive and give, gifts! This time I go
 
 ## Information gathering
 The first place to look, is at the back off the box. The device contained a message that the remote controlled dinosaur is using the '38 KHz infrared' frequency. So no complicated spectrum reconnaissance is required :)
+
 ![Label](https://github.com/JeroenSlobbe/Tutorials/blob/main/Infrared/img/label.png?raw=true)
 
 ## Building the PoC

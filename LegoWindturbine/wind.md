@@ -15,3 +15,7 @@ The following items are required to build the demo
 |     6| 9v Battery     | https://www.amazon.nl/Duracell-Plus-MN1604-Alkaline-batterijen/dp/B00011PJDG |
 
 
+![Picture of polarity](https://github.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/polarity.png?raw=true)
+![Picture of setup](https://github.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/setup.png?raw=true)
+![Picture of libs](https://github.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/libs.png?raw=true)
+![Picture of demo](https://github.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/demo.png?raw=true)

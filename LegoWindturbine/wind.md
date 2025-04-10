@@ -102,7 +102,8 @@ void loop()
 }
 ```
 ## HMI and attack script
-Luckily the protocol is well specified by Berckoff (https://infosys.beckhoff.com/english.php?content=../content/1033/tf6500_tc3_iec60870_5_10x/984444939.html&id=). Based on this, I was able to write two python scripts. One based on Flask, simulating an HMI that can enable / disable the turbine and the second one simulating the attacker in a terminal (for dramatic demo purposes).
+Luckily the protocol is well specified by [Berckhoff](https://infosys.beckhoff.com/english.php?content=../content/1033/tf6500_tc3_iec60870_5_10x/984444939.html&id=)
+). Based on this, I was able to write two python scripts. One based on Flask, simulating an HMI that can enable / disable the turbine and the second one simulating the attacker in a terminal (for dramatic demo purposes).
 
 ```python
 from flask import Flask, render_template, request
@@ -143,6 +144,7 @@ def control_windturbine():
 if __name__ == '__main__':
     app.run(debug=True)
 ```
+Finally, I created an attack script for the demo effect (and getting a better understanding of the protocol):
 
 ```python
 import socket

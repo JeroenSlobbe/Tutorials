@@ -18,10 +18,10 @@ When looking at the bricks cable, you find that the 4 metal connectors indicate:
 
 As such, I cut the bricks line and connected a chandler (kroonluchter) for each of use (and to extend the wire a bit). During this process, I learned that the multimeter indicates the polarity while doing a measurement by showing the minus sign in front of the number (in case its reversed).
 
-![Picture of polarity](https://github.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/polarity.png?raw=true)
+![Picture of polarity](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/polarity.png?raw=true)
 
 After this worked, I figured it would be easier to use a 9v battery and came op with the following setup:
-![Picture of setup](https://github.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/setup.png?raw=true)
+![Picture of setup](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/setup.png?raw=true)
 
 Note that NO indicates Normal Open and NC indicates Normal Closed. By default, I want the wind turbine to work, so I picked NO.
 
@@ -29,10 +29,10 @@ Note that NO indicates Normal Open and NC indicates Normal Closed. By default, I
 After the wiring was complete, I started working on the software and found that Crisce implemented a PoC for the IEC 60870-5-104 protocol for the ESP32: https://github.com/Crisce/IEC60870-5-104. 
 First, I downloaded the library as a .zip and added the library to the Arduino IDE:
 
-![Picture of libs](https://github.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/libs.png?raw=true)
+![Picture of libs](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/libs.png?raw=true)
 
 Afterwards, I copied the code from: https://github.com/Crisce/IEC60870-5-104/tree/master/examples/Slave_Server_Demo and updated it, for the purpose of this demo.
-![image](https://github.com/user-attachments/assets/5ea163fe-29c3-4ff1-8e65-0d5e62df8cdd)
+![image](https://raw.githubusercontent.com/user-attachments/assets/5ea163fe-29c3-4ff1-8e65-0d5e62df8cdd)
 
 ```arduino
 /*ESEMPIO IEC60870-5-104 SLAVE*/
@@ -105,6 +105,46 @@ void loop()
 Luckily the protocol is well specified by Berckoff (https://infosys.beckhoff.com/english.php?content=../content/1033/tf6500_tc3_iec60870_5_10x/984444939.html&id=). Based on this, I was able to write two python scripts. One based on Flask, simulating an HMI that can enable / disable the turbine and the second one simulating the attacker in a terminal (for dramatic demo purposes).
 
 ```python
+from flask import Flask, render_template, request
+import socket
+
+app = Flask(__name__)
+
+# Define the server's IP and port
+HOST = "192.168.2.32"  # Replace with your target IP
+PORT = 2404            # Replace with your target port
+
+@app.route('/')
+def home():
+    return render_template("hmi.html")
+
+@app.route('/control', methods=['POST'])
+def control_windturbine():
+    action = request.form.get("action")  # Get the action from the form
+    raw_message = b""  # Initialize raw message
+
+    if action == "Enable":
+        raw_message = b'\x68\x0e\x00\x00\x00\x00\x2D\x01\x03\x00\x32\x01\x00\x00\x00\x02'
+    elif action == "Disable":
+        raw_message = b'\x68\x0e\x00\x00\x00\x00\x2D\x01\x03\x00\x32\x01\x00\x00\x00\x01'
+
+    try:
+        # Create and connect the socket
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+            client_socket.connect((HOST, PORT))
+            client_socket.sendall(raw_message)
+            print(f"Raw message sent: {raw_message}")
+        message = f"Successfully sent: {action} command"
+    except Exception as e:
+        message = f"Failed to send command: {e}"
+    
+    return render_template("hmi.html", message=message)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+```python
 import socket
 
 # Define the server's IP and port
@@ -146,4 +186,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
         print(f"Error: {e}")
 ```
 
-![Picture of demo](https://github.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/demo.png?raw=true)
+![Picture of demo](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/demo.png?raw=true)

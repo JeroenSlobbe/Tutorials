@@ -26,13 +26,12 @@ After this worked, I figured it would be easier to use a 9v battery and came op 
 Note that NO indicates Normal Open and NC indicates Normal Closed. By default, I want the wind turbine to work, so I picked NO.
 
 ## Software (Arduino)
-After the wiring was complete, I started working on the software and found that Crisce implemented a PoC for the IEC 60870-5-104 protocol for the ESP32: https://github.com/Crisce/IEC60870-5-104. 
+After the wiring was complete, I started working on the software and found that Crisce implemented a [PoC](https://github.com/Crisce/IEC60870-5-104) for the IEC 60870-5-104 protocol for the ESP32. 
 First, I downloaded the library as a .zip and added the library to the Arduino IDE:
 
 ![Picture of libs](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/main/LegoWindturbine/img/libs.png?raw=true)
 
-Afterwards, I copied the code from: https://github.com/Crisce/IEC60870-5-104/tree/master/examples/Slave_Server_Demo and updated it, for the purpose of this demo.
-
+Afterwards, I copied the [code](https://github.com/Crisce/IEC60870-5-104/tree/master/examples/Slave_Server_Demo) and updated it, for the purpose of this demo.
 
 ```arduino
 /*ESEMPIO IEC60870-5-104 SLAVE*/
@@ -102,8 +101,9 @@ void loop()
 }
 ```
 ## HMI and attack script
-Luckily the protocol is well specified by [Berckhoff](https://infosys.beckhoff.com/english.php?content=../content/1033/tf6500_tc3_iec60870_5_10x/984444939.html&id=)
-). Based on this, I was able to write two python scripts. One based on Flask, simulating an HMI that can enable / disable the turbine and the second one simulating the attacker in a terminal (for dramatic demo purposes).
+Luckily the protocol is well specified by [Berckhoff](https://infosys.beckhoff.com/english.php?content=../content/1033/tf6500_tc3_iec60870_5_10x/984444939.html&id=). Based on this, I was able to write two python scripts. One based on Flask, simulating an HMI that can enable / disable the turbine and the second one simulating the attacker in a terminal (for dramatic demo purposes).
+
+The flask application requires two files, one: hmi.py:
 
 ```python
 from flask import Flask, render_template, request
@@ -144,7 +144,55 @@ def control_windturbine():
 if __name__ == '__main__':
     app.run(debug=True)
 ```
-Finally, I created an attack script for the demo effect (and getting a better understanding of the protocol):
+and the second one templates\hmi.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windturbine Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            background-color: #0078D4;
+            color: white;
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005A9E;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Windturbine Control Interface</h1>
+    <form method="POST" action="/control">
+        <button type="submit" name="action" value="Enable">Enable Windturbine</button>
+        <button type="submit" name="action" value="Disable">Disable Windturbine</button>
+    </form>
+    {% if message %}
+        <div class="message">{{ message }}</div>
+    {% endif %}
+</body>
+</html>
+
+```
+To finish the demo, I created an attack script to optimize the demo effect (and getting a better understanding of the protocol):
 
 ```python
 import socket
@@ -187,5 +235,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
     except Exception as e:
         print(f"Error: {e}")
 ```
-
+Finally, the result is there:
 ![Picture of demo](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/main/LegoWindturbine/img/demo.png?raw=true)

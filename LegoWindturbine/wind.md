@@ -1,5 +1,5 @@
 # Hacking demo of a wind turbine using he IEC 60870-5-104 protocol
-Working on OT security often involves a lot of talk about frameworks, network segmentation, monitoring and other controls. However, to better connect to the actual systems, its useful to get some hands-on experience with the actual protocols. For this demo, I obtained a Bricks windturbine (Lego was to expensive :)) and connected it to an ESP32. The ESP32 simulates a very simple operation, in this case an operator being able to remotely switch on and off the wind turbine. 
+Working on OT security often involves a lot of talk about frameworks, network segmentation, monitoring and other controls. However, to better connect to the actual systems, its useful to get some hands-on experience with the actual protocols. For this demo, I obtained a Bricks windturbine (Lego was to expensive :)) and connected it to an ESP32. The ESP32 allows [IEC 60870-5-104](https://en.wikipedia.org/wiki/IEC_60870-5) communication, commonly used in power automation systems. The ESP32 simulates a very simple operation, in this case an operator being able to remotely switch on and off the wind turbine. 
 
 ## Shoppinglist
 The following items are required to build the demo

@@ -18,10 +18,10 @@ When looking at the bricks cable, you find that the 4 metal connectors indicate:
 
 As such, I cut the bricks line and connected a chandler (kroonluchter) for each of use (and to extend the wire a bit). During this process, I learned that the multimeter indicates the polarity while doing a measurement by showing the minus sign in front of the number (in case its reversed).
 
-![Picture of polarity](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/polarity.png?raw=true)
+![Picture of polarity](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/main/LegoWindturbine/img/polarity.png?raw=true)
 
 After this worked, I figured it would be easier to use a 9v battery and came op with the following setup:
-![Picture of setup](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/setup.png?raw=true)
+![Picture of setup](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/main/LegoWindturbine/img/setup.png?raw=true)
 
 Note that NO indicates Normal Open and NC indicates Normal Closed. By default, I want the wind turbine to work, so I picked NO.
 
@@ -29,10 +29,10 @@ Note that NO indicates Normal Open and NC indicates Normal Closed. By default, I
 After the wiring was complete, I started working on the software and found that Crisce implemented a PoC for the IEC 60870-5-104 protocol for the ESP32: https://github.com/Crisce/IEC60870-5-104. 
 First, I downloaded the library as a .zip and added the library to the Arduino IDE:
 
-![Picture of libs](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/libs.png?raw=true)
+![Picture of libs](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/main/LegoWindturbine/img/libs.png?raw=true)
 
 Afterwards, I copied the code from: https://github.com/Crisce/IEC60870-5-104/tree/master/examples/Slave_Server_Demo and updated it, for the purpose of this demo.
-![image](https://raw.githubusercontent.com/user-attachments/assets/5ea163fe-29c3-4ff1-8e65-0d5e62df8cdd)
+
 
 ```arduino
 /*ESEMPIO IEC60870-5-104 SLAVE*/
@@ -186,4 +186,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
         print(f"Error: {e}")
 ```
 
-![Picture of demo](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/tree/main/LegoWindturbine/img/demo.png?raw=true)
+![Picture of demo](https://raw.githubusercontent.com/JeroenSlobbe/Tutorials/main/LegoWindturbine/img/demo.png?raw=true)

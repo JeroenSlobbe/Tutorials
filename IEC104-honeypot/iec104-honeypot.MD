@@ -7,7 +7,7 @@ Are attackers actually attacking the honeypot? Well yes, after less than 6 minut
 ?
 Let’s dip into the world of honeypots, honeypot detection and tailoring.
 
-== Creating your first honeypot on AWS
+## Creating your first honeypot on AWS
 The initial installation and set-up is straightforward. You spin up an EC2 instance with sufficient RAM (t2.large), storage (128GB), select the Ubuntu image, select (or create your key-pair), allow SSH access from your IP only and start the instance. After the initialization is completed you can login to your EC2 instance over SSH and execute the following commands:
 
 ```bash

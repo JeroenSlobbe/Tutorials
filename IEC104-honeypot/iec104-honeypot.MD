@@ -27,6 +27,7 @@ During the installation, I selected the HIVE (H) option installing all the pots 
 If we know navigate to https://IP-address:64297, we get these beautiful interfaces:
  
 Ok, so how about our IEC104 conpot instance? Let’s try to scan and attack using Nmap (nmap -p 2404 -sV –script=iec-identify <<IP-address>>) and Metasploit:
+
 ```bash
 use auxiliary/client/iec104/iec104
 set RHOST <<IP-Address>>
@@ -49,6 +50,42 @@ Thinking about a good distinguisher for the conpot_IEC104 I noticed that the ASD
 Let’s build a nuclei template [7] to detect the conpot_IEC104. As a first step, I ran the nmap identify-iec script and looked at the results in the conpot log (/tpotce/data/conpot/log/conpot_IEC104.log). Secondly, I fed the log trace (and the NSE script [6]) to copilot to build the initial script.
 It did provide the structure, but the matcher didn’t work. The protocol [4] specifies we should first receive two U-frames (6 bytes long), the Test Frame Activation (TESTFR ACT, 0x43) and the Start Data Transfer Activation (STARTDT ACT, 0x07). Finally we should receive an Activation Confirmation Frame containing the address on the 10th byte. 
 When running the template in debug mode (nuclei -u <<targetIP>>:2404 -t conpot-iec104-detection.yaml -debug -svd), I realized that the first two response frames were omitted in the data  (body) that the template uses for pattern matching. As such, a matcher is only required for the 3rth frame and can stop after 7720 (0x28 0x1e). As a result, the detection template became:
+
+```yml
+id: conpot-iec104-honeypot-fingerprint
+
+info:
+name: Conpot IEC104 Honeypot - TESTFR Confirmation
+author: Jeroen Slobbe
+severity: info
+description: |
+Detects IEC104 honeypot behavior.
+Matches the expected last response to the C_IC_NA_1 Interogration frame for 7720 (0x28 0x1e) from Conpot or similar honeypots.
+tags: conpot,iec104,honeypot,fingerprint,nuclei
+
+tcp:
+
+host:
+
+'{{Host}}:2404'
+inputs:
+type: hex
+data: "680443000000" # TESTFR ACT
+read: 64
+type: hex
+data: "680407000000" # STARTDT ACT
+read: 64
+type: hex
+data: "680e0000000064010600ffff00000014" # C_IC_NA_1 Interrogation
+read: 1024
+matchers-condition: and
+matchers:
+
+type: binary
+part: body
+binary:
+"684a0200020001101400281e"
+```
  
 Now, if we run: nuclei -u <<targetIP>>:2404 -t conpot-iec104-detection.yaml, the conpot gets detected as a honeypot.
  

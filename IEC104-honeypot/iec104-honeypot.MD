@@ -22,7 +22,9 @@ sudo reboot
 ```
 
 During the installation, I selected the HIVE (H) option installing all the pots on a single host. Additionally, I provided the username/password for the web user. After completing the installation, I ensured to adjust the AWS security group. The group allows the port now allocated to SSH (64295) and management ports for T-pot, for my IP only. Finally, I opened the rest of the ports up for business with the whole internet:
- 
+
+![Initial aws security group configuration](https://github.com/JeroenSlobbe/Tutorials/blob/main/IEC104-honeypot/img/img_1.png?raw=true)
+
 ## Validating if the honeypot is ready to be attacked
 If we know navigate to https://IP-address:64297, we get these beautiful interfaces:
  

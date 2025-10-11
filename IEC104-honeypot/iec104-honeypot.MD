@@ -1,4 +1,4 @@
-= Setting up an OT Honeypot (conpot IEC 104)
+# Setting up an OT Honeypot (conpot IEC 104)
 
 The great military strategist Sun Wu Tzu already pointed out ages ago: “Know your enemy and know yourself and you can fight a thousand battles without disaster”. While there are plenty of cybersecurity leadership courses available, knowing your opponent is a bit more tricky. With thousands of attackers in the web with different profiles and capabilities it’s hard to prepare. However, this shouldn’t stop you from trying.
 Deutsche Telekom Security, created a great honeypot platform (T-Pot) [1] for everybody to use. What is a honeypot? A honeypot is digital trap that deliberately simulates a (vulnerable) system to attract attackers. On your network, you could use it as a tripwire to raise an alert and initiate defensive activities against all that target the honeypot. Additionally, you could use it as bait, allowing you to observe, analyze, and learn from malicious behavior without risking real infrastructure.

@@ -107,29 +107,35 @@ Now that an attacker can spot this honeypot, lets reconfigure the honeypot to ma
 - Conpot_iec104 (2404)
  
 I also updated the AWS security group to be less permissive and only allowed the abovementioned ports to be accessible to the big-scary-internet:
+
+![AWS security group updated](https://github.com/JeroenSlobbe/Tutorials/blob/main/IEC104-honeypot/img/img_9.png?raw=true)
  
 Taking it one step further, the conpot template [3], contains the 0x1e28 value. It took me a while to realize, that the conpot docker container isn’t using this template. You can customize the template of the conpot_iec104 by taking the following steps:
 
 ```bash
 docker cp conpot_iec104:/usr/lib/python3.11/site-packages/conpot/templates/IEC104 /tmp/IEC104
 vim /tmp/IEC104/template.xml
- cd / ~/tpotce
+```
+![file modification](https://github.com/JeroenSlobbe/Tutorials/blob/main/IEC104-honeypot/img/img_10.png?raw=true)
+
+```bash
+cd / ~/tpotce
 vim docker-compose.yml
 ```
-
+![file modification](https://github.com/JeroenSlobbe/Tutorials/blob/main/IEC104-honeypot/img/img_11.png?raw=true)
 ```bash
 sudo -i
 systemctl restart tpot
 exit
 ```
 Ok, we should be ready to go, docker logs conpot_iec104 no errors, so let’s see if we changed the value:
- 
+![nmap result](https://github.com/JeroenSlobbe/Tutorials/blob/main/IEC104-honeypot/img/img_12.png?raw=true) 
 And voila, we build a nuclei detection template to detect the honeypot and further customized the template to make it less obvious to detect again. Time since up and running: docker inspect --format='{{.State.StartedAt}}' conpot_iec104 ->  11:50:41 AM local time
 Attacker behavior
 In less than 6 minus the first attempt to connect to telnet occurs:
- 
+![first attacker](https://github.com/JeroenSlobbe/Tutorials/blob/main/IEC104-honeypot/img/img_13.png?raw=true) 
 And 2 hours, 16 minutes later, the first connection attempt on TCP 2404 is made.
- 
+![first ot attacker](https://github.com/JeroenSlobbe/Tutorials/blob/main/IEC104-honeypot/img/img_13.png?raw=true) 
 Note, the date inside the container (docker exec -u 0 -it conpot_iec104 /bin/sh ) -> (date) is different than the date of the host system. 
 
 ## So what and whats next?

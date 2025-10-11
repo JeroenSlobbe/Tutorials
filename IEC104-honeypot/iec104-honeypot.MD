@@ -103,7 +103,9 @@ docker cp conpot_iec104:/usr/lib/python3.11/site-packages/conpot/templates/IEC10
 vim /tmp/IEC104/template.xml
  cd / ~/tpotce
 vim docker-compose.yml
- 
+```
+
+```bash
 sudo -i
 systemctl restart tpot
 exit
@@ -122,10 +124,11 @@ Note, the date inside the container (docker exec -u 0 -it conpot_iec104 /bin/sh 
 Honeypots are useful for gathering statistics for presentations, analyzing attacker behavior, and can be used as a tripwire to alert you that something suspicious is happening on your network. The traditional cat-and-mouse game between the offensive team and defensive team applies here as well. Make the honeypot less obvious, customize and tailor it — versus creating automation scripts for detection. I think there are opportunities for making honeypots more interactive and anticipatory by using AI. The same holds for analyzing attacker behavior and turning newly learned methodologies into detection cases. Finally, I see opportunities for automating the generation of more dynamic templates for the conpot_IEC104, as well as branching into vendor-specific configurations to get even closer to the behavior of real equipment.
 
 === References
-[1] https://github.com/telekom-security/tpotce 
-[2] https://github.com/UnaPibaGeek/honeypots-detection.git
-[3] https://github.com/telekom-security/tpotce/blob/master/docker/conpot/dist/templates/IEC104/template.xml 
- [4] https://infosys.beckhoff.com/english.php?content=../content/1033/tf6500_tc3_iec60870_5_10x/984444939.html&id= 
-[5] https://techdoc.relays.protection-control.abb/r/REC615-and-RER615-IEC-60870-5-101/104-Communication-Protocol-Manual/2.0/en-US/End-delay 
-[6] https://svn.nmap.org/nmap/scripts/iec-identify.nse 
-[7] https://docs.projectdiscovery.io/templates/introduction 
+- [1] [T-Pot Honeypot Platform by Deutsche Telekom Security](https://github.com/telekom-security/tpotce)
+- [2] [Honeypot Detection Scripts by UnaPibaGeek](https://github.com/UnaPibaGeek/honeypots-detection.git)
+- [3] [IEC104 Conpot Template on GitHub](https://github.com/telekom-security/tpotce/blob/master/docker/conpot/dist/templates/IEC104/template.xml)
+- [4] [Beckhoff IEC 60870-5-104 Protocol Documentation](https://infosys.beckhoff.com/english.php?content=../content/1033/tf6500_tc3_iec60870_5_10x/984444939.html&id=)
+- [5] [ABB Communication Protocol Manual for REC615/RER615](https://techdoc.relays.protection-control.abb/r/REC615-and-RER615-IEC-60870-5-101/104-Communication-Protocol-Manual/2.0/en-US/End-delay)
+- [6] [Nmap IEC104 Identification Script](https://svn.nmap.org/nmap/scripts/iec-identify.nse)
+- [7] [ProjectDiscovery Nuclei Template Documentation](https://docs.projectdiscovery.io/templates/introduction)
+

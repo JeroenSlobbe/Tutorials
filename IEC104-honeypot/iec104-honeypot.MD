@@ -55,7 +55,7 @@ However, if not given away by the overwhelming number of open ports, the honeypo
 
 ![nuclei template](https://github.com/JeroenSlobbe/Tutorials/blob/main/IEC104-honeypot/img/img_5.png?raw=true)
 
-However, for the conpot_IEC104, the Nuclie template wouldn’t trigger as the template is focusing on a different OT protocol on a different port.  
+However, for the conpot_IEC104, the Nuclei template wouldn’t trigger as the template is focusing on a different OT protocol on a different port.  
 Thinking about a good distinguisher for the conpot_IEC104 I noticed that the ASDU address is included in the template [3] with a default of: 0x1e28 (7720 in decimal). The convention for addressing seems to be to start the address with a low number (for example ABB specifies the default as 1) [5] and increase it sequentially per device on the network. So, any ASDU address of 7720 would definitely be an indicator of the conpot_IEC104.
 Let’s build a nuclei template [7] to detect the conpot_IEC104. As a first step, I ran the nmap identify-iec script and looked at the results in the conpot log (/tpotce/data/conpot/log/conpot_IEC104.log). Secondly, I fed the log trace (and the NSE script [6]) to copilot to build the initial script.
 It did provide the structure, but the matcher didn’t work. The protocol [4] specifies we should first receive two U-frames (6 bytes long), the Test Frame Activation (TESTFR ACT, 0x43) and the Start Data Transfer Activation (STARTDT ACT, 0x07). Finally we should receive an Activation Confirmation Frame containing the address on the 10th byte. 

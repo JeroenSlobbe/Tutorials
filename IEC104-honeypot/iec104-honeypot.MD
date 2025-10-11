@@ -27,6 +27,8 @@ During the installation, I selected the HIVE (H) option installing all the pots 
 
 ## Validating if the honeypot is ready to be attacked
 If we know navigate to https://IP-address:64297, we get these beautiful interfaces:
+
+![T-pot screens](https://github.com/JeroenSlobbe/Tutorials/blob/main/IEC104-honeypot/img/img_2.png?raw=true)
  
 Ok, so how about our IEC104 conpot instance? Let’s try to scan and attack using Nmap (nmap -p 2404 -sV –script=iec-identify <<IP-address>>) and Metasploit:
 

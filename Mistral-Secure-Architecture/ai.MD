@@ -1,4 +1,4 @@
-# AI Holiday special
+# Mistral security architecture for a finance chatbot that retreives data of external sources and an SQLite database
 
 The holiday season is a great way to experiment with new technologies. During my holiday, I decided to augment a locally operated application with an AI chatbot, using the local database to provide more precise answers (also referred to as Retrieval-Augmented Generation aka RAG).
 

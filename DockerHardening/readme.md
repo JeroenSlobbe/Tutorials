@@ -119,7 +119,7 @@ We assume an attacker scenario, where a docker application (python) is exposed t
   - **5a:** accessing user PII
   - **5b:** injecting malware on the front-page that users might download as the trust the website
 
-To simplify the hardening and attack examples, I assume no kernel exploit is currently available (I will addressing the security of the host platform in another write-up) and assume the attacker cannot modify the image. Although image signing is addressed as a hardening control, for the sake of time, I'm not taking supply chain attacks (package managers and image repositories) into account. For actual applications, you should!
+To simplify the hardening and attack examples, I assume no kernel exploit is currently available (I will address the security of the host platform in another write-up) and assume the attacker cannot modify the image. Although image signing is addressed as a hardening control, for the sake of time, I'm not taking supply chain attacks (package managers and image repositories) into account. For actual applications, you should!
 
 ### 2.1. Apply the principle of the least privilege
 
@@ -127,7 +127,7 @@ The application is currently running as the root user, by visiting: `http://loca
 
 ![whoami shows the application is running as root](./img/whoamiroot.png)
 
-This is not a good practise. So lets add a group and a user to the Dockerfile and run the app with lower user priviledges.
+This is not a good practise. So lets add a group and a user to the Dockerfile and run the app with lower user privileges.
 
 ```dockerfile
 # Use an official Python runtime as a parent image
@@ -165,7 +165,7 @@ CMD [ "python", "-m" , "flask", "run", "--host=0.0.0.0", "--port=1337"]
 
 ### 2.2. Further lock down the container: make the file system immutable
 
-With the current RCE vulnerability, an attacker can modify app.py and inject malicious code, effectively turning the application into a delivery mechanism for targeting other users. It could also use the directory (or other parts of the container) to temporarily store malicious content. In our case the container does not use external mounts for storing the data, and the container is ephemeral (e.g. it's not keeping any modifications made during runtime), regularly rebooting might not make this an ideally place for attackers to store malicious content. Nonetheless, we want to further lock down the container file system, as currently the RCE allows for writing output to the container:
+With the current RCE vulnerability, an attacker can modify app.py and inject malicious code, effectively turning the application into a delivery mechanism for targeting other users. It could also use the directory (or other parts of the container) to temporarily store malicious content. In our case the container does not use external mounts for storing the data, and the container is ephemeral (e.g. it's not keeping any modifications made during runtime), regularly rebooting might not make this an ideal place for attackers to store malicious content. Nonetheless, we want to further lock down the container file system, as currently the RCE allows for writing output to the container:
 
 ![The RCE can write a file into the container filesystem](./img/03-rce-writes-file-to-container.png)
 
@@ -201,9 +201,9 @@ Denying the attacker from profiting from crypto mining via this directory (or an
 
 ### 2.3. Check the container image for known vulnerabilities
 
-Many applications rely on other software libraries, components or even complete operating systems for their security. Lately, there is a trend of packet managers being targeted by adversaries, as this is an effective way to gain access to many applications at once. The security objective in this paragraph is not to solve the supply-chain attack issue, however, we do want to make sure that our container is shipped without known exploitable vulnerabilities. As such we want to perform a vulnerability scan on the container images selected and the libraries that are brought on board of our application. Again, another caveat, we won't go into the details of running tools like the OWASP dependency checker (or others) on your application, as this walkthrough focusses on securing the container (and not the application itself). Securing software is a continuous effort that should be built into your CI/CD pipeline, as part of a secure software development life cycle process.
+Many applications rely on other software libraries, components or even complete operating systems for their security. Lately, there is a trend of package managers being targeted by adversaries, as this is an effective way to gain access to many applications at once. The security objective in this paragraph is not to solve the supply-chain attack issue, however, we do want to make sure that our container is shipped without known exploitable vulnerabilities. As such we want to perform a vulnerability scan on the container images selected and the libraries that are brought on board of our application. Again, another caveat, we won't go into the details of running tools like the OWASP dependency checker (or others) on your application, as this walkthrough focusses on securing the container (and not the application itself). Securing software is a continuous effort that should be built into your CI/CD pipeline, as part of a secure software development life cycle process.
 
-To scan the container for known vulnerability, I used [trivy](https://github.com/aquasecurity/trivy/releases/) a container vulnerability scanning tool. The tool could be executed via:
+To scan the container for known vulnerabilities, I used [trivy](https://github.com/aquasecurity/trivy/releases/) a container vulnerability scanning tool. The tool could be executed via:
 
 ```bash
 trivy image myapp:latest
@@ -211,7 +211,7 @@ trivy image myapp:latest
 
 ![Trivy scan of the python:3.9-slim-buster based image](./img/08-trivy-scan-python-slim-buster.png)
 
-As you could see from the first run, the application contained 126 vulnerabilities. From here we have multiple options, validate if we have the latest release? In the demo, we deliberately used `python:3.9-slim`. Updating to the latest slim version, still flagged quite some vulnerabilities. So again, we had the chose to either start targeting each vulnerability (assess exploitability, evaluate if there is an update/workaround) or pick another image that has less features. In this case I choose the later and selected Alpine as the new container image. `python-slim` is based on Debian (using glibc) where Alpine is Linux based using musl-libc. That means for our Dockerfile to be able to compile we need to update the RUN command that creates the groups to:
+As you could see from the first run, the application contained 126 vulnerabilities. From here we have multiple options, validate if we have the latest release? In the demo, we deliberately used `python:3.9-slim`. Updating to the latest slim version, still flagged quite some vulnerabilities. So again, we had the choice to either start targeting each vulnerability (assess exploitability, evaluate if there is an update/workaround) or pick another image that has less features. In this case I chose the latter and selected Alpine as the new container image. `python-slim` is based on Debian (using glibc) where Alpine is Linux based using musl-libc. That means for our Dockerfile to be able to compile we need to update the RUN command that creates the groups to:
 
 ```dockerfile
 RUN addgroup -S appgroup && adduser -S -G appgroup appuser
@@ -235,7 +235,7 @@ docker scout cves myapp
 
 ### 2.4. Activate a Secure Computing Mode (SECCOMP) profile
 
-The docker Secure computing mode (SECCOMP) allows you to block specific syscalls, or allow-list specific syscalls (which is even stronger). De default seccomp profile, strips around 44 syscalls out of 300+ available to make the container execution more secure (https://docs.docker.com/engine/security/seccomp/). On the other handside, it's also possible to block syscalls you don't fancy. Let's watch an example and use the Dockerfile from above, and use the RCE to change the permissions of the app.py application
+The docker Secure computing mode (SECCOMP) allows you to block specific syscalls, or allow-list specific syscalls (which is even stronger). The default seccomp profile, strips around 44 syscalls out of 300+ available to make the container execution more secure (https://docs.docker.com/engine/security/seccomp/). On the other handside, it's also possible to block syscalls you don't fancy. Let's watch an example and use the Dockerfile from above, and use the RCE to change the permissions of the app.py application
 
 ![chmod via the RCE succeeds without a seccomp profile](./img/12-chmod-via-rce-succeeds.png)
 
@@ -293,7 +293,7 @@ docker run -p 1337:1337 --user=root --cap-drop=CHOWN myapp
 
 ![Dropping the CHOWN capability blocks chown even for root](./img/16-cap-drop-chown-blocks-chown.png)
 
-As a result, even the root user, cannot make arbitrary changes to file UIDS anymore.
+As a result, even the root user, cannot make arbitrary changes to UIDS anymore.
 
 ### 2.6. no-new-privileges
 
@@ -394,7 +394,7 @@ A denial of service (DoS) attack, is an attack that makes an application or reso
 
 ![Baseline WSL memory usage for the container](./img/20-wsl-baseline-memory-usage.png)
 
-A way to cause a denial of service via a command prompt (besides issuing a shutdown command :)) it to apply a fork bomb. With a fork bomb a process recursively tries to open multiple instances of itself, growing the numbers of processes exponentially until the operating system crashes. So by issuing a fork bomb with the current settings, we should be able to cause an impact not only to the container, but also to the host system. After tweaking the fork bomb a bit (encoding!), I found the following command:
+A way to cause a denial of service via a command prompt (besides issuing a shutdown command :)) is to apply a fork bomb. With a fork bomb a process recursively tries to open multiple instances of itself, growing the number of processes exponentially until the operating system crashes. So by issuing a fork bomb with the current settings, we should be able to cause an impact not only to the container, but also to the host system. After tweaking the fork bomb a bit (encoding!), I found the following command:
 
 ```bash
 b(){ b|b%26 }%3Bb
@@ -614,27 +614,27 @@ An attacker could still fetch the key-vault short living token from the environm
 
 ![The attacker uses the leaked Vault token to fetch the database credentials](./img/31-attacker-fetches-secret-with-vault-token.png)
 
-So, what problem did we actually resolve by introducing a key-vault? Clearly, the attacker can still perform a hit and run to our database, which is caused by the RCE of the application. The token rotates to slowly to avoid an attacker dumping the data and take a run. However, it does positively impact a couple of things:
+So, what problem did we actually resolve by introducing a key-vault? Clearly, the attacker can still perform a hit and run to our database, which is caused by the RCE of the application. The token rotates too slowly to avoid an attacker dumping the data and taking a run. However, it does positively impact a couple of things:
 
 1. Instead of reading the config file and having the database access, we let the attacker do a bit more work (although, from reading the code, this should be obvious to an attacker, it does take some time to implement and figure out the next step in an attack chain).
 2. A leaked static DB password, often unlocks other systems. Having a credential vault in place, let you deliberately think about setting these credentials and manage credentials length and complexity with policies. With rotation, complexity and re-use policies in place, the chances of re-using the database credential for other components is reduced, and hence the blast radius of this exposure is reduced as well.
 3. Nothing gets into the image layers of our container, limiting the attack surface (although, this was not an objective of this write-up, it's a nice bonus).
-4. Detection opportunity, while detecting an unauthorized read of a config file can be done, having a central place to monitor for all credential access makes it more easy to detect abuse.
+4. Detection opportunity, while detecting an unauthorized read of a config file can be done, having a central place to monitor for all credential access makes it easier to detect abuse.
 5. Recoverability: The key vault lowers the effort required for recovery. After fixing the RCE, the owner of the application, doesn't have to go through the code and repositories to change the credential of the config file. It can simply be rotated via the key vault. Especially when multiple applications make use of the same connection string, you reduce the pain of recoverability.
 
-The key vault in this particular threat model bears an interesting security tradeoff. On the one hand we have the opportunity to fully lockdown all capabilities for remote communication with the image. By introducing the key vault, we do need the application have a capability to connect outwards. Of course, we can confine this to the no-internet network, but there is a trade off in ensuring the container cannot be abused by an attacker to connect out (enforced by not having the capability to do so and strict egress network limitations) and storing the keys more securely.
+The key vault in this particular threat model bears an interesting security tradeoff. On the one hand we have the opportunity to fully lockdown all capabilities for remote communication with the image. By introducing the key vault, we do need the application to have a capability to connect outwards. Of course, we can confine this to the no-internet network, but there is a trade off in ensuring the container cannot be abused by an attacker to connect out (enforced by not having the capability to do so and strict egress network limitations) and storing the keys more securely.
 
 Final note, for Docker swarm services, docker secrets are available (https://docs.docker.com/engine/swarm/secrets/) docker secrets help you manage secrets at runtime and avoid letting them into the image or source control. However, as we are analyzing security controls for a standalone container, we did not go in depth for this one.
 
 ### 2.12. Custom log rules
 
-By now, we addressed most of the security objectives from our threat model. As we have seen, there are some limitations to the controls we can apply, given that the application is hacked with RCE, its unavoidable that the attacker can access the database, that the application can access (objective 5a) and gains access to the secrets, the application needs to harbor to function (objective 3). Luckily, we have one more trick up our sleave which is logging and security monitoring. Docker logs can be viewed via:
+By now, we addressed most of the security objectives from our threat model. As we have seen, there are some limitations to the controls we can apply, given that the application is hacked with RCE, it is unavoidable that the attacker can access the database, that the application can access (objective 5a) and gains access to the secrets, the application needs to harbor to function (objective 3). Luckily, we have one more trick up our sleeve which is logging and security monitoring. Docker logs can be viewed via:
 
 ```bash
 docker logs vault
 ```
 
-However, they contain a lot of generic logs as well. Luckily there is a solution that focusses on the security logging. Falco is an open-source security tools that monitors the security of docker containers. Let's install and run the solution:
+However, they contain a lot of generic logs as well. Luckily there is a solution that focusses on the security logging. Falco is an open-source security tool that monitors the security of docker containers. Let's install and run the solution:
 
 ```bash
 docker pull falcosecurity/falco:latest
@@ -670,7 +670,7 @@ docker run --rm -it --name falco --privileged -v /var/run/docker.sock:/host/var/
 
 Perfect, we can now create custom detection rules for our container image. More about creating custom rules can be found on: https://falco.org/docs/concepts/rules/custom-ruleset/. Based on the security trade-off you had to make while configuring the security of this application, you can plunge the gaps. For example, if you decided to work with the secrets manager and have curl still available in your container, you can now monitor that curl is not being abused to get the secret to the attacker. Or maybe even broader, that the output doesn't contain the format of the secrets string.
 
-Having log warnings is great, but to increase your security, you also need to be able to act on them. Of course you can monitor the log file yourself, but this is not very practical. Luckily we can extend the falcosecurity module and let it send the logs to the SIEM of your choise. As this walkthrough is not about setting up SIEM or SOAR, or installing anything specific (Sentinel, Splunk etc.), claude just created this `siem.py` stub for the sake of the demonstration:
+Having log warnings is great, but to increase your security, you also need to be able to act on them. Of course you can monitor the log file yourself, but this is not very practical. Luckily we can extend the falcosecurity module and let it send the logs to the SIEM of your choice. As this walkthrough is not about setting up SIEM or SOAR, or installing anything specific (Sentinel, Splunk etc.), claude just created this `siem.py` stub for the sake of the demonstration:
 
 ```python
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -694,7 +694,7 @@ docker run --rm -it --name falco --privileged -v /var/run/docker.sock:/host/var/
 
 ![The Falco alert is forwarded to the SIEM stub](./img/34-falco-alert-forwarded-to-siem.png)
 
-This examples shows a container can be connected to a SIEM. The solution might not scale well, but connecting a Kubernetes cluster to a SIEM, will be discussed in a later write-up.
+This example shows a container can be connected to a SIEM. The solution might not scale well, but connecting a Kubernetes cluster to a SIEM, will be discussed in a later write-up.
 
 ## Final remarks
 

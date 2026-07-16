@@ -125,7 +125,7 @@ To simplify the hardening and attack examples, I assume no kernel exploit is cur
 
 The application is currently running as the root user, by visiting: `http://localhost:1337/run?cmd=whoami` you will observe:
 
-![whoami shows the application is running as root](./img/whoamiroot)
+![whoami shows the application is running as root](./img/whoamiroot.png)
 
 This is not a good practise. So lets add a group, a user to the Dockerfile and run the app with lower user priviledges.
 

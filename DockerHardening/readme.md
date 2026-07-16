@@ -8,7 +8,7 @@ Some security controls will be a little bit redundant. For example having a read
 - **Reduce attack surface** (the attacker inside the container should have the minimal amount of additional pivoting points)
 - **Reduce blast radius** (the attack should be confined to the container, not being able to impact the host, other containers or other systems)
 - **Defense in depth** (we don't rely on a single control)
-- **Principle of the least privilege** (no service / user should have more priviledges than necessary for the job to be done)
+- **Principle of the least privilege** (No service or user should operate with more privileges than strictly required to perform its intended task)
 
 ## 1. Initial setup
 
@@ -169,7 +169,7 @@ With the current RCE vulnerability, an attacker can modify app.py and inject mal
 
 ![The RCE can write a file into the container filesystem](./img/03-rce-writes-file-to-container.png)
 
-To prevent this from happening, we run our container with a read online file system:
+To prevent this from happening, we run our container with a read only file system:
 
 ```bash
 docker run -p 1337:1337 --read-only myapp
@@ -235,7 +235,7 @@ docker scout cves myapp
 
 ### 2.4. Activate a Secure Computing Mode (SECCOMP) profile
 
-The docker Secure computing mode (SECCOMP) allows you to block specific syscalls, or allow-list specific syscalls (which is even stronger). De default seccom profile, strips around 44 syscalls out of 300+ available to make the container execution more secure (https://docs.docker.com/engine/security/seccomp/). On the other handside, it's also possible to block syscalls you don't fancy. Let's watch an example and use the Dockerfile from above, and use the RCE to change the permissions of the app.py application
+The docker Secure computing mode (SECCOMP) allows you to block specific syscalls, or allow-list specific syscalls (which is even stronger). De default seccomp profile, strips around 44 syscalls out of 300+ available to make the container execution more secure (https://docs.docker.com/engine/security/seccomp/). On the other handside, it's also possible to block syscalls you don't fancy. Let's watch an example and use the Dockerfile from above, and use the RCE to change the permissions of the app.py application
 
 ![chmod via the RCE succeeds without a seccomp profile](./img/12-chmod-via-rce-succeeds.png)
 
@@ -686,7 +686,7 @@ class SIEM(BaseHTTPRequestHandler):
 HTTPServer(("0.0.0.0", 8000), SIEM).serve_forever()
 ```
 
-Now, let's run falsco with SIEM enabled
+Now, let's run falco with SIEM enabled
 
 ```bash
 docker run --rm -it --name falco --privileged -v /var/run/docker.sock:/host/var/run/docker.sock -v /proc:/host/proc:ro -v "C:\Users\testuser\dockertest\falco_extra_rules.yaml:/etc/falco/rules.d/webapp_rules.yaml:ro" falcosecurity/falco:latest falco -o json_output=true -o http_output.enabled=true -o "http_output.url=http://192.168.2.10:8000/"
@@ -694,7 +694,7 @@ docker run --rm -it --name falco --privileged -v /var/run/docker.sock:/host/var/
 
 ![The Falco alert is forwarded to the SIEM stub](./img/34-falco-alert-forwarded-to-siem.png)
 
-This examples shows a container can be connected to a SIEM. The solution might now scale well, but connecting a Kubernetes cluster to a SIEM, will be discussed in a later write-up.
+This examples shows a container can be connected to a SIEM. The solution might not scale well, but connecting a Kubernetes cluster to a SIEM, will be discussed in a later write-up.
 
 ## Final remarks
 

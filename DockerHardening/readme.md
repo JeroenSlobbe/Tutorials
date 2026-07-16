@@ -127,7 +127,7 @@ The application is currently running as the root user, by visiting: `http://loca
 
 ![whoami shows the application is running as root](./img/whoamiroot.png)
 
-This is not a good practise. So lets add a group, a user to the Dockerfile and run the app with lower user priviledges.
+This is not a good practise. So lets add a group and a user to the Dockerfile and run the app with lower user priviledges.
 
 ```dockerfile
 # Use an official Python runtime as a parent image

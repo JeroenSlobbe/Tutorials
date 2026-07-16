@@ -161,7 +161,7 @@ ENV FLASK_APP=app.py
 CMD [ "python", "-m" , "flask", "run", "--host=0.0.0.0", "--port=1337"]
 ```
 
-![whoami now shows the application is running as appuser](./img/02-whoami-runs-as-appuser.png)
+![whoami now shows the application is running as appuser](./img/whoamiappuser.png)
 
 ### 2.2. Further lock down the container file system to make it immutable
 

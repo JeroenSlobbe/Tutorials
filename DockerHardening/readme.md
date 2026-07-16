@@ -163,9 +163,9 @@ CMD [ "python", "-m" , "flask", "run", "--host=0.0.0.0", "--port=1337"]
 
 ![whoami now shows the application is running as appuser](./img/whoamiappuser.png)
 
-### 2.2. Further lock down the container file system to make it immutable
+### 2.2. Further lock down the container: make the file system immutable
 
-With the current RCE, the attacker could modify the app.py application and add malware to application to start targeting other users. It could also use the directory (or other parts of the container) to temporarily store malicious content. In our case the container does not use external mounts for storing the data, and the container is ephemeral (e.g. it's not keeping any modifications done on runtime during root), regularly rebooting might not make this an ideally place for attackers to store malicious content. Nonetheless, we want to further lock down the container file system, as currently the RCE allows for writing output to the container:
+With the current RCE vulnerability, an attacker can modify app.py and inject malicious code, effectively turning the application into a delivery mechanism for targeting other users. It could also use the directory (or other parts of the container) to temporarily store malicious content. In our case the container does not use external mounts for storing the data, and the container is ephemeral (e.g. it's not keeping any modifications made during runtime), regularly rebooting might not make this an ideally place for attackers to store malicious content. Nonetheless, we want to further lock down the container file system, as currently the RCE allows for writing output to the container:
 
 ![The RCE can write a file into the container filesystem](./img/03-rce-writes-file-to-container.png)
 
@@ -177,7 +177,7 @@ docker run -p 1337:1337 --read-only myapp
 
 ![The read-only filesystem blocks the write](./img/04-read-only-filesystem-blocks-write.png)
 
-However, if you need to write session cookies, or have one directory where legitimately you need to write something, you can add one exception:
+However, if you need to write session cookies, or have one directory where you need to write something, you can add one (or more) exception(s):
 
 ```bash
 docker run -p 1337:1337 --read-only --tmpfs /tmp/flask_session:rw,exec,size=64k myapp

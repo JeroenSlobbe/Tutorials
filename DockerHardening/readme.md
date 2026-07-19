@@ -104,9 +104,9 @@ http://localhost:1337/run?cmd=whoami
 
 ### 2.0. Threat model of the application
 
-For any security evaluation it's good practice to document your security assumptions and threat model upfront. In general we have limited time that we want to spend on something (even though, some companies might spend months on threat modeling) realistically there is a limit to what can and can't be covered. The main purpose of this walkthrough is to gain a basic understanding of docker security controls and validate its working against a practical attack.
+For any security evaluation it's good practice to document your security assumptions and threat model upfront. In general we have limited time that we want to spend on something (even though, some companies might spend months on threat modeling), realistically there is a limit to what can and can't be covered. The main purpose of this walkthrough is to gain a basic understanding of docker security controls and validate its working against a practical attack.
 
-We assume an attacker scenario, where a docker application (python) is exposed to the external world. The application has a Remote Code Execution vulnerability and as such the attacker has full arbitrary command execution inside the container. The attacker does not have however any credentials or direct access to the docker daemon. By hardening the container we want to establish the following security objectives:
+We assume an attacker scenario, where a docker application (python) is exposed to the external world. The application has a Remote Code Execution vulnerability and as such the attacker has full arbitrary command execution inside the container. The attacker does not, have any credentials or direct access to the docker daemon. By hardening the container we want to establish the following security objectives:
 
 - **#1 Objective:** avoid that an attacker can abuse the RCE to make a significant impact on the host system;
 - **#2 Objective:** ensure any RCE only results in getting a minimal foothold to the container
@@ -293,7 +293,7 @@ docker run -p 1337:1337 --user=root --cap-drop=CHOWN myapp
 
 ![Dropping the CHOWN capability blocks chown even for root](./img/16-cap-drop-chown-blocks-chown.png)
 
-As a result, even the root user, cannot make arbitrary changes to UIDs anymore.
+As a result, even the root user cannot make arbitrary changes to UIDs anymore.
 
 ### 2.6. no-new-privileges
 
@@ -359,7 +359,7 @@ docker run -p 1337:1337 --read-only --tmpfs /tmp/flask_session:rw,size=64k --cap
 
 ![The SUID binary reports an effective UID of root](./img/17-suid-demo-effective-uid-root.png)
 
-Now let's enforce, that the application cannot gain new privileges by adding no-new-privileges:
+Now let's enforce that the application cannot gain new privileges by adding no-new-privileges:
 
 ```bash
 docker run -p 1337:1337 --read-only --tmpfs /tmp/flask_session:rw,size=64k --cap-drop=ALL --security-opt no-new-privileges myapp
@@ -390,7 +390,7 @@ docker build -t myapp .
 
 ### 2.8. Reduce Denial of service (DoS) risk from container spreading to host
 
-A denial of service (DoS) attack, is an attack that makes an application or resource unavailable. An application or resource can become unavailable for only the user that is using it, for all users using it, or worse can propagate to the host system and also cause other services to become less responsive or unavailable. Let's have a look at the normal memory consumption of our container. Note that, as we are running Docker Desktop on a Windows Machine, the container is mounted through the Windows Subsystem for Linux (WSL), which is the windows process we'll be monitoring for performance
+A denial of service (DoS) attack is an attack that makes an application or resource unavailable. An application or resource can become unavailable for only the user that is using it, for all users using it, or worse can propagate to the host system and also cause other services to become less responsive or unavailable. Let's have a look at the normal memory consumption of our container. Note that, as we are running Docker Desktop on a Windows Machine, the container is mounted through the Windows Subsystem for Linux (WSL), which is the windows process we'll be monitoring for performance
 
 ![Baseline WSL memory usage for the container](./img/20-wsl-baseline-memory-usage.png)
 
@@ -488,7 +488,7 @@ To block all outgoing traffic, you could use the `--network none` parameters
 docker run -p 1337:1337 --read-only --network none myapp
 ```
 
-With `--network none` you'll notice the Flask application itself is no longer reachable either — cutting all networking also cuts the published port. Ultimately it's better to enforce container inbound/outbound rules with a real firewall, e.g. iptables or a Kubernetes NetworkPolicy — but managing anything outside the container I'll keep for another writeup. To demonstrate egress filtering at the container level, I placed the app in a separate, isolated network with no route to the outside. So I could still reach Flask from localhost, I added a second network and a small proxy that forwards only port 1337 to the app. The isolated network blocks all outbound traffic; the proxy restores just the inbound path:
+With `--network none` you'll notice the Flask application itself is no longer reachable either — cutting all networking also cuts the published port. Ultimately it's better to enforce container inbound/outbound rules with a real firewall, e.g. iptables or a Kubernetes NetworkPolicy — but managing anything outside the container I'll keep for another write-up. To demonstrate egress filtering at the container level, I placed the app in a separate, isolated network with no route to the outside. So I could still reach Flask from localhost, I added a second network and a small proxy that forwards only port 1337 to the app. The isolated network blocks all outbound traffic; the proxy restores just the inbound path:
 
 ```bash
 docker network create --internal no-internet
@@ -617,8 +617,8 @@ An attacker could still fetch the keyvault short living token from the environme
 So, what problem did we actually resolve by introducing a keyvault? Clearly, the attacker can still perform a hit and run to our database, which is caused by the RCE of the application. The token rotates too slowly to avoid an attacker dumping the data and taking a run. However, it does positively impact a couple of things:
 
 1. Instead of reading the config file and having the database access, we let the attacker do a bit more work (although, from reading the code, this should be obvious to an attacker, it does take some time to implement and figure out the next step in an attack chain).
-2. A leaked static DB password, often unlocks other systems. Having a credential vault in place, let you deliberately think about setting these credentials and manage credential length and complexity with policies. With rotation, complexity and re-use policies in place, the chances of re-using the database credential for other components is reduced, and hence the blast radius of this exposure is reduced as well.
-3. Nothing gets into the image layers of our container, limiting the attack surface (although, this was not an objective of this writeup, it's a nice bonus).
+2. A leaked static DB password often unlocks other systems. Having a credential vault in place, lets you deliberately think about setting these credentials and manage credential length and complexity with policies. With rotation, complexity and re-use policies in place, the chances of re-using the database credential for other components is reduced, and hence the blast radius of this exposure is reduced as well.
+3. Nothing gets into the image layers of our container, limiting the attack surface (although, this was not an objective of this write-up, it's a nice bonus).
 4. Detection opportunity, while detecting an unauthorized read of a config file can be done, having a central place to monitor for all credential access makes it easier to detect abuse.
 5. Recoverability: The keyvault lowers the effort required for recovery. After fixing the RCE, the owner of the application, doesn't have to go through the code and repositories to change the credential of the config file. It can simply be rotated via the keyvault. Especially when multiple applications make use of the same connection string, you reduce the pain of recoverability.
 

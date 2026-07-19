@@ -1,6 +1,6 @@
 # Hardening a Docker container on Windows running Docker Desktop
 
-To learn a thing or two about docker, I decided to set up a docker image, containing a deliberately vulnerable application and see how various security settings impact various attacks. For this set-up I used a windows host system running with docker desktop and used python flask for the web application. In this write up, I cover the process of setting up a simple container with our web application that deliberately contains Remote Code Execution (RCE) through a system command, obtained via the URL.
+To learn a thing or two about docker, I decided to set up a docker image, containing a deliberately vulnerable application and see how various security settings impact various attacks. For this set-up I used a windows host system running with docker desktop and used python flask for the web application. In this write-up, I cover the process of setting up a simple container with our web application that deliberately contains Remote Code Execution (RCE) through a system command, obtained via the URL.
 
 Some security controls will be a little bit redundant. For example having a read only file system already makes it impossible to install malicious software as an attacker, however by stripping the image of pip, apt and other package managers, it makes it even harder for an attacker. For the sake of demonstration and of course the defense in depth principle, I'll apply both controls :). The controls selected implement these principles:
 
@@ -211,7 +211,7 @@ trivy image myapp:latest
 
 ![Trivy scan of the python:3.9-slim-buster based image](./img/08-trivy-scan-python-slim-buster.png)
 
-As you could see from the first run, the application contained 126 vulnerabilities. From here we have multiple options, validate if we have the latest release? In the demo, we deliberately used `python:3.9-slim`. Updating to the latest slim version, still flagged quite some vulnerabilities. So again, we had the choice to either start targeting each vulnerability (assess exploitability, evaluate if there is an update/workaround) or pick another image that has less features. In this case I chose the latter and selected Alpine as the new container image. `python-slim` is based on Debian (using glibc) where Alpine is Linux based using musl-libc. That means for our Dockerfile to be able to compile we need to update the RUN command that creates the groups to:
+As you could see from the first run, the application contained 126 vulnerabilities. From here we have multiple options, validate if we have the latest release? In the demo, we deliberately used `python:3.9-slim`. Updating to the latest slim version, still flagged quite some vulnerabilities. So again, we had the choice to either start targeting each vulnerability (assess exploitability, evaluate if there is an update/workaround) or pick another image that has fewer features. In this case I chose the latter and selected Alpine as the new container image. `python-slim` is based on Debian (using glibc) where Alpine is Linux based using musl-libc. That means for our Dockerfile to be able to compile we need to update the RUN command that creates the groups to:
 
 ```dockerfile
 RUN addgroup -S appgroup && adduser -S -G appgroup appuser
@@ -359,7 +359,7 @@ docker run -p 1337:1337 --read-only --tmpfs /tmp/flask_session:rw,size=64k --cap
 
 ![The SUID binary reports an effective UID of root](./img/17-suid-demo-effective-uid-root.png)
 
-Now lets enforce, that the application cannot gain new privileges by adding no-new-privileges:
+Now let's enforce, that the application cannot gain new privileges by adding no-new-privileges:
 
 ```bash
 docker run -p 1337:1337 --read-only --tmpfs /tmp/flask_session:rw,size=64k --cap-drop=ALL --security-opt no-new-privileges myapp
@@ -502,7 +502,7 @@ docker network connect no-internet demo-proxy
 
 ### 2.11. Secrets management
 
-Every application requires some sort of secret at some point. Maybe you want to have access to a database and need to store a connectivity string, maybe you need to store a (hash of) a password to ensure a user can login, or maybe you want to make a call to a back-end API that requires a secret.
+Every application requires some sort of secret at some point. Maybe you want to have access to a database and need to store a connectivity string, maybe you need to store a (hash of) a password to ensure a user can log in, or maybe you want to make a call to a back-end API that requires a secret.
 
 Let's introduce two examples:
 
@@ -516,7 +516,7 @@ docker run -p 1337:1337 -e MY_SECRET_ACCESS_KEY=wJalrDEMOfake/K7MDENGbPxRfiCYFAK
 
 ![The attacker can read both the config file secret and the environment variable](./img/29-secrets-exposed-in-config-and-env.png)
 
-As you can see, the attacker can access both. However, is this really avoidable? Well partially. Let's first move our secrets to a key-vault and then reflect on the problem being solved. For this demo, I picked hashicorpvault as our keyvault. A deep dive into key management solutions and how they can be managed as part of the broader environment will be addressed in another write up. To demonstrate the improvement the key-vault makes, we need to slightly update our `app.py` and `config.py`
+As you can see, the attacker can access both. However, is this really avoidable? Well partially. Let's first move our secrets to a keyvault and then reflect on the problem being solved. For this demo, I picked hashicorpvault as our keyvault. A deep dive into key management solutions and how they can be managed as part of the broader environment will be addressed in another write-up. To demonstrate the improvement the keyvault makes, we need to slightly update our `app.py` and `config.py`
 
 #### Fetch and run hashicorp vault
 
@@ -584,7 +584,7 @@ docker build -t myapp .
 
 #### Generate least-privilege token, to only access the connection string
 
-Now that we have a key vault, we need to create a policy for the secret of our app and generate the token that can be used by our application:
+Now that we have a keyvault, we need to create a policy for the secret of our app and generate the token that can be used by our application:
 
 ```bash
 echo 'path "secret/data/myapp" { capabilities = ["read"] }' | vault policy write app-policy -
@@ -610,19 +610,19 @@ docker run -d --name demo-myapp --network no-internet -e VAULT_ADDR=http://vault
 
 ![The application fetches the database connection string from Vault at runtime](./img/30-vault-dbinfo-fetched-at-runtime.png)
 
-An attacker could still fetch the key-vault short living token from the environment variables and abuse any network connectivity of the application, to fetch the database credentials:
+An attacker could still fetch the keyvault short living token from the environment variables and abuse any network connectivity of the application, to fetch the database credentials:
 
 ![The attacker uses the leaked Vault token to fetch the database credentials](./img/31-attacker-fetches-secret-with-vault-token.png)
 
-So, what problem did we actually resolve by introducing a key-vault? Clearly, the attacker can still perform a hit and run to our database, which is caused by the RCE of the application. The token rotates too slowly to avoid an attacker dumping the data and taking a run. However, it does positively impact a couple of things:
+So, what problem did we actually resolve by introducing a keyvault? Clearly, the attacker can still perform a hit and run to our database, which is caused by the RCE of the application. The token rotates too slowly to avoid an attacker dumping the data and taking a run. However, it does positively impact a couple of things:
 
 1. Instead of reading the config file and having the database access, we let the attacker do a bit more work (although, from reading the code, this should be obvious to an attacker, it does take some time to implement and figure out the next step in an attack chain).
 2. A leaked static DB password, often unlocks other systems. Having a credential vault in place, let you deliberately think about setting these credentials and manage credential length and complexity with policies. With rotation, complexity and re-use policies in place, the chances of re-using the database credential for other components is reduced, and hence the blast radius of this exposure is reduced as well.
-3. Nothing gets into the image layers of our container, limiting the attack surface (although, this was not an objective of this write-up, it's a nice bonus).
+3. Nothing gets into the image layers of our container, limiting the attack surface (although, this was not an objective of this writeup, it's a nice bonus).
 4. Detection opportunity, while detecting an unauthorized read of a config file can be done, having a central place to monitor for all credential access makes it easier to detect abuse.
-5. Recoverability: The key vault lowers the effort required for recovery. After fixing the RCE, the owner of the application, doesn't have to go through the code and repositories to change the credential of the config file. It can simply be rotated via the key vault. Especially when multiple applications make use of the same connection string, you reduce the pain of recoverability.
+5. Recoverability: The keyvault lowers the effort required for recovery. After fixing the RCE, the owner of the application, doesn't have to go through the code and repositories to change the credential of the config file. It can simply be rotated via the keyvault. Especially when multiple applications make use of the same connection string, you reduce the pain of recoverability.
 
-The key vault in this particular threat model bears an interesting security tradeoff. On the one hand we have the opportunity to fully lockdown all capabilities for remote communication with the image. By introducing the key vault, we do need the application to have a capability to connect outwards. Of course, we can confine this to the no-internet network, but there is a trade off in ensuring the container cannot be abused by an attacker to connect out (enforced by not having the capability to do so and strict egress network limitations) and storing the keys more securely.
+The keyvault in this particular threat model bears an interesting security trade-off. On the one hand we have the opportunity to fully lockdown all capabilities for remote communication with the image. By introducing the keyvault, we do need the application to have a capability to connect outwards. Of course, we can confine this to the no-internet network, but there is a trade-off in ensuring the container cannot be abused by an attacker to connect out (enforced by not having the capability to do so and strict egress network limitations) and storing the keys more securely.
 
 Final note, for Docker swarm services, docker secrets are available (https://docs.docker.com/engine/swarm/secrets/) docker secrets help you manage secrets at runtime and avoid letting them into the image or source control. However, as we are analyzing security controls for a standalone container, we did not go into depth for this one.
 

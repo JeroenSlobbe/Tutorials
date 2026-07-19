@@ -1,8 +1,8 @@
 # Hardening a Docker container on Windows running Docker Desktop
 
-To learn a thing or two about docker, I decided to setup a docker image, containing a deliberately vulnerable application and see how various security settings impact various attacks. For this set-up I used a windows host system running with docker desktop and used python flask for the web application. In this write up, I cover the process of setting up a simple container with our web application that deliberately contains Remote Code Execution (RCE) through a system command, obtained via the URL.
+To learn a thing or two about docker, I decided to set up a docker image, containing a deliberately vulnerable application and see how various security settings impact various attacks. For this set-up I used a windows host system running with docker desktop and used python flask for the web application. In this write up, I cover the process of setting up a simple container with our web application that deliberately contains Remote Code Execution (RCE) through a system command, obtained via the URL.
 
-Some security controls will be a little bit redundant. For example having a read only file system already makes it impossible to install malicious software as an attacker, however by stripping the image from pip, apt and other package managers, make it even harder for an attacker. For the sake of demonstration and of course the defense in depth principle, I'll apply both controls :). The controls selected are following the following principles:
+Some security controls will be a little bit redundant. For example having a read only file system already makes it impossible to install malicious software as an attacker, however by stripping the image of pip, apt and other package managers, makes it even harder for an attacker. For the sake of demonstration and of course the defense in depth principle, I'll apply both controls :). The controls selected are implement these principles:
 
 - **Assume breach** (we assume an attacker got in via the application RCE);
 - **Reduce attack surface** (the attacker inside the container should have the minimal amount of additional pivoting points)
@@ -111,13 +111,13 @@ We assume an attacker scenario, where a docker application (python) is exposed t
 - **#1 Objective:** avoid that an attacker can abuse the RCE to make a significant impact on the host system;
 - **#2 Objective:** ensure any RCE only results in getting a minimal foothold to the container
 - **#3 Objective:** ensure the attacker cannot compromise secrets or a minimal amount of secrets
-- **#4 Objective:** avoid letting attacker abuse the container resources for malicious purposes such as
-  - **4a:** installing crypto miners and make a profit while a financial impact is presented to the company hosting the container
+- **#4 Objective:** avoid letting an attacker abuse the container resources for malicious purposes such as
+  - **4a:** installing crypto miners and making a profit while a financial impact is presented to the company hosting the container
   - **4b:** use the container as an attacker proxy, attacker platform, to attack other systems
   - **4c:** use the container to host criminal content (stolen data, host a C2, etc.)
 - **#5 Objective:** avoid letting the RCE have an impact on other users
   - **5a:** accessing user PII
-  - **5b:** injecting malware on the front-page that users might download as the trust the website
+  - **5b:** injecting malware on the front-page that users might download as they trust the website
 
 To simplify the hardening and attack examples, I assume no kernel exploit is currently available (I will address the security of the host platform in another write-up) and assume the attacker cannot modify the image. Although image signing is addressed as a hardening control, for the sake of time, I'm not taking supply chain attacks (package managers and image repositories) into account. For actual applications, you should!
 
@@ -127,7 +127,7 @@ The application is currently running as the root user, by visiting: `http://loca
 
 ![whoami shows the application is running as root](./img/whoamiroot.png)
 
-This is not a good practise. So lets add a group and a user to the Dockerfile and run the app with lower user privileges.
+This is not a good practise. So let's add a group and a user to the Dockerfile and run the app with lower user privileges.
 
 ```dockerfile
 # Use an official Python runtime as a parent image
@@ -203,7 +203,7 @@ Denying the attacker from profiting from crypto mining via this directory (or an
 
 Many applications rely on other software libraries, components or even complete operating systems for their security. Lately, there is a trend of package managers being targeted by adversaries, as this is an effective way to gain access to many applications at once. The security objective in this paragraph is not to solve the supply-chain attack issue, however, we do want to make sure that our container is shipped without known exploitable vulnerabilities. As such we want to perform a vulnerability scan on the container images selected and the libraries that are brought on board of our application. Again, another caveat, we won't go into the details of running tools like the OWASP dependency checker (or others) on your application, as this walkthrough focusses on securing the container (and not the application itself). Securing software is a continuous effort that should be built into your CI/CD pipeline, as part of a secure software development life cycle process.
 
-To scan the container for known vulnerabilities, I used [trivy](https://github.com/aquasecurity/trivy/releases/) a container vulnerability scanning tool. The tool could be executed via:
+To scan the container for known vulnerabilities, I used [trivy](https://github.com/aquasecurity/trivy/releases/), a container vulnerability scanning tool. The tool could be executed via:
 
 ```bash
 trivy image myapp:latest
@@ -502,7 +502,7 @@ docker network connect no-internet demo-proxy
 
 ### 2.11. Secrets management
 
-Every application requires some sort of secret at some point. Maybe you want have access to a database and need to store a connectivity string, maybe you need to store a (hash of) a password to ensure a user can login, or maybe you want to make a call to a back-end API that requires a secret.
+Every application requires some sort of secret at some point. Maybe you want to have access to a database and need to store a connectivity string, maybe you need to store a (hash of) a password to ensure a user can login, or maybe you want to make a call to a back-end API that requires a secret.
 
 Let's introduce two examples:
 
@@ -528,7 +528,7 @@ docker pull hashicorp/vault
 docker run -d --name vault --network no-internet --cap-add=IPC_LOCK -e VAULT_DEV_ROOT_TOKEN_ID=root -e VAULT_ADDR=http://127.0.0.1:8200 -e VAULT_TOKEN=root hashicorp/vault server -dev
 ```
 
-> **Note:** for the sake of this demonstration I'm using devmode which pre-mount kv v2 store. In production, you need to initialize this first.
+> **Note:** for the sake of this demonstration I'm using devmode which pre-mount a kv v2 store. In production, you need to initialize this first.
 >
 > **Note 2:** this solution uses the proxy from the previous section.
 
@@ -617,18 +617,18 @@ An attacker could still fetch the key-vault short living token from the environm
 So, what problem did we actually resolve by introducing a key-vault? Clearly, the attacker can still perform a hit and run to our database, which is caused by the RCE of the application. The token rotates too slowly to avoid an attacker dumping the data and taking a run. However, it does positively impact a couple of things:
 
 1. Instead of reading the config file and having the database access, we let the attacker do a bit more work (although, from reading the code, this should be obvious to an attacker, it does take some time to implement and figure out the next step in an attack chain).
-2. A leaked static DB password, often unlocks other systems. Having a credential vault in place, let you deliberately think about setting these credentials and manage credentials length and complexity with policies. With rotation, complexity and re-use policies in place, the chances of re-using the database credential for other components is reduced, and hence the blast radius of this exposure is reduced as well.
+2. A leaked static DB password, often unlocks other systems. Having a credential vault in place, let you deliberately think about setting these credentials and manage credential length and complexity with policies. With rotation, complexity and re-use policies in place, the chances of re-using the database credential for other components is reduced, and hence the blast radius of this exposure is reduced as well.
 3. Nothing gets into the image layers of our container, limiting the attack surface (although, this was not an objective of this write-up, it's a nice bonus).
 4. Detection opportunity, while detecting an unauthorized read of a config file can be done, having a central place to monitor for all credential access makes it easier to detect abuse.
 5. Recoverability: The key vault lowers the effort required for recovery. After fixing the RCE, the owner of the application, doesn't have to go through the code and repositories to change the credential of the config file. It can simply be rotated via the key vault. Especially when multiple applications make use of the same connection string, you reduce the pain of recoverability.
 
 The key vault in this particular threat model bears an interesting security tradeoff. On the one hand we have the opportunity to fully lockdown all capabilities for remote communication with the image. By introducing the key vault, we do need the application to have a capability to connect outwards. Of course, we can confine this to the no-internet network, but there is a trade off in ensuring the container cannot be abused by an attacker to connect out (enforced by not having the capability to do so and strict egress network limitations) and storing the keys more securely.
 
-Final note, for Docker swarm services, docker secrets are available (https://docs.docker.com/engine/swarm/secrets/) docker secrets help you manage secrets at runtime and avoid letting them into the image or source control. However, as we are analyzing security controls for a standalone container, we did not go in depth for this one.
+Final note, for Docker swarm services, docker secrets are available (https://docs.docker.com/engine/swarm/secrets/) docker secrets help you manage secrets at runtime and avoid letting them into the image or source control. However, as we are analyzing security controls for a standalone container, we did not go into depth for this one.
 
 ### 2.12. Custom log rules
 
-By now, we addressed most of the security objectives from our threat model. As we have seen, there are some limitations to the controls we can apply, given that the application is hacked with RCE, it is unavoidable that the attacker can access the database, that the application can access (objective 5a) and gains access to the secrets, the application needs to harbor to function (objective 3). Luckily, we have one more trick up our sleeve which is logging and security monitoring. Docker logs can be viewed via:
+By now, we have addressed the majority of the security objectives defined in our threat model. Throughout this walkthrough, it became clear that several controls have inherent limitations: once the application is vulnerable to Remote Code Execution, an attacker can reach the database (objective 5a) and retrieve the secrets the application must store to function (objective 3). These constraints are structural rather than accidental — an RCE collapses the trust boundary. Fortunately, we still have one powerful control left: logging and security monitoring. This final layer does not prevent the attacker from reaching sensitive components, but it does allow us to detect, contain, and respond to malicious activity before the impact escalates.. Docker logs can be viewed via:
 
 ```bash
 docker logs vault
@@ -641,7 +641,7 @@ docker pull falcosecurity/falco:latest
 docker run --rm -it --name falco --privileged -v /var/run/docker.sock:/host/var/run/docker.sock -v /proc:/host/proc:ro falcosecurity/falco:latest falco
 ```
 
-Great, falco is now up and running, lets trigger a warning by using: `http://127.0.0.1:1337/run?cmd=find%20/%20-name%20id_rsa`
+Great, falco is now up and running, let's trigger a warning by using: `http://127.0.0.1:1337/run?cmd=find%20/%20-name%20id_rsa`
 
 ![Falco raises an alert on the search for id_rsa](./img/32-falco-alerts-on-id-rsa-search.png)
 

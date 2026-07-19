@@ -2,7 +2,7 @@
 
 To learn a thing or two about docker, I decided to set up a docker image, containing a deliberately vulnerable application and see how various security settings impact various attacks. For this set-up I used a windows host system running with docker desktop and used python flask for the web application. In this write up, I cover the process of setting up a simple container with our web application that deliberately contains Remote Code Execution (RCE) through a system command, obtained via the URL.
 
-Some security controls will be a little bit redundant. For example having a read only file system already makes it impossible to install malicious software as an attacker, however by stripping the image of pip, apt and other package managers, makes it even harder for an attacker. For the sake of demonstration and of course the defense in depth principle, I'll apply both controls :). The controls selected are implement these principles:
+Some security controls will be a little bit redundant. For example having a read only file system already makes it impossible to install malicious software as an attacker, however by stripping the image of pip, apt and other package managers, it makes it even harder for an attacker. For the sake of demonstration and of course the defense in depth principle, I'll apply both controls :). The controls selected implement these principles:
 
 - **Assume breach** (we assume an attacker got in via the application RCE);
 - **Reduce attack surface** (the attacker inside the container should have the minimal amount of additional pivoting points)
@@ -104,7 +104,7 @@ http://localhost:1337/run?cmd=whoami
 
 ### 2.0. Threat model of the application
 
-For any security evaluation its good practice to document your security assumptions and threat model upfront. In general we have limited time that we want to spend on something (even though, some companies might spend months on threat modeling) realistically there is a limit to what can and can't be covered. The main purpose of this walkthrough is to gain a basic understanding of docker security controls and validate its working against a practical attack.
+For any security evaluation it's good practice to document your security assumptions and threat model upfront. In general we have limited time that we want to spend on something (even though, some companies might spend months on threat modeling) realistically there is a limit to what can and can't be covered. The main purpose of this walkthrough is to gain a basic understanding of docker security controls and validate its working against a practical attack.
 
 We assume an attacker scenario, where a docker application (python) is exposed to the external world. The application has a Remote Code Execution vulnerability and as such the attacker has full arbitrary command execution inside the container. The attacker does not have however any credentials or direct access to the docker daemon. By hardening the container we want to establish the following security objectives:
 
@@ -127,7 +127,7 @@ The application is currently running as the root user, by visiting: `http://loca
 
 ![whoami shows the application is running as root](./img/whoamiroot.png)
 
-This is not a good practise. So let's add a group and a user to the Dockerfile and run the app with lower user privileges.
+This is not a good practice. So let's add a group and a user to the Dockerfile and run the app with lower user privileges.
 
 ```dockerfile
 # Use an official Python runtime as a parent image
@@ -235,7 +235,7 @@ docker scout cves myapp
 
 ### 2.4. Activate a Secure Computing Mode (SECCOMP) profile
 
-The docker Secure computing mode (SECCOMP) allows you to block specific syscalls, or allow-list specific syscalls (which is even stronger). The default seccomp profile, strips around 44 syscalls out of 300+ available to make the container execution more secure (https://docs.docker.com/engine/security/seccomp/). On the other handside, it's also possible to block syscalls you don't fancy. Let's watch an example and use the Dockerfile from above, and use the RCE to change the permissions of the app.py application
+The docker Secure computing mode (SECCOMP) allows you to block specific syscalls, or allow-list specific syscalls (which is even stronger). The default seccomp profile, strips around 44 syscalls out of 300+ available to make the container execution more secure (https://docs.docker.com/engine/security/seccomp/). On the other hand, it's also possible to block syscalls you don't fancy. Let's watch an example and use the Dockerfile from above, and use the RCE to change the permissions of the app.py application
 
 ![chmod via the RCE succeeds without a seccomp profile](./img/12-chmod-via-rce-succeeds.png)
 
@@ -285,7 +285,7 @@ docker run -p 1337:1337 --user=root myapp
 
 ![chown succeeds when running as root](./img/15-chown-as-root-succeeds.png)
 
-Now, lets drop the CHOWN capability, and try again:
+Now, let's drop the CHOWN capability, and try again:
 
 ```bash
 docker run -p 1337:1337 --user=root --cap-drop=CHOWN myapp
@@ -293,11 +293,11 @@ docker run -p 1337:1337 --user=root --cap-drop=CHOWN myapp
 
 ![Dropping the CHOWN capability blocks chown even for root](./img/16-cap-drop-chown-blocks-chown.png)
 
-As a result, even the root user, cannot make arbitrary changes to UIDS anymore.
+As a result, even the root user, cannot make arbitrary changes to UIDs anymore.
 
 ### 2.6. no-new-privileges
 
-To demonstrate the power of no-new-privileges we need to switch distros as Alpine works with busybox that doesn't allow for SUIDs. So we switch back to python-slim. First, lets create a file called `suiddemo.c` containing:
+To demonstrate the power of no-new-privileges we need to switch distros as Alpine works with busybox that doesn't allow for SUIDs. So we switch back to python-slim. First, let's create a file called `suiddemo.c` containing:
 
 ```c
 #include <stdio.h>
@@ -382,7 +382,7 @@ suiddemo.c
 __pycache__
 ```
 
-Lets' rebuild the application:
+Let's rebuild the application:
 
 ```bash
 docker build -t myapp .
@@ -428,7 +428,7 @@ Although an earlier control is preventing pip from downloading anything to the r
 
 ![The gcc compiler is still available inside the container](./img/25-gcc-compiler-still-available.png)
 
-A good practise in docker is to work with a multi-stage build, meaning that you prepare the app in one container (the build stage) but ship it in a different one. As a result, the shipping container can be even smaller (as build tooling etc. is not necessary in the run container) and by having less tooling available in your container, you are also further reducing the attack surface. Secondly, if your application doesn't rely on certain binaries, there is no need for them to be present in the container. Have a look at https://gtfobins.org/ and decide which ones can be removed. As we are trying to avoid any installations I'm removing `nc`, `wget`, `curl`, `apt`, `pip` to make it even harder to get something. The new Dockerfile contains:
+A good practice in docker is to work with a multi-stage build, meaning that you prepare the app in one container (the build stage) but ship it in a different one. As a result, the shipping container can be even smaller (as build tooling etc. is not necessary in the run container) and by having less tooling available in your container, you are also further reducing the attack surface. Secondly, if your application doesn't rely on certain binaries, there is no need for them to be present in the container. Have a look at https://gtfobins.org/ and decide which ones can be removed. As we are trying to avoid any installations I'm removing `nc`, `wget`, `curl`, `apt`, `pip` to make it even harder to get something. The new Dockerfile contains:
 
 ```dockerfile
 # ---------- Stage 1: builder (has gcc + pip) ----------
@@ -528,7 +528,7 @@ docker pull hashicorp/vault
 docker run -d --name vault --network no-internet --cap-add=IPC_LOCK -e VAULT_DEV_ROOT_TOKEN_ID=root -e VAULT_ADDR=http://127.0.0.1:8200 -e VAULT_TOKEN=root hashicorp/vault server -dev
 ```
 
-> **Note:** for the sake of this demonstration I'm using devmode which pre-mount a kv v2 store. In production, you need to initialize this first.
+> **Note:** for the sake of this demonstration I'm using devmode which pre-mounts a kv v2 store. In production, you need to initialize this first.
 >
 > **Note 2:** this solution uses the proxy from the previous section.
 
@@ -628,7 +628,7 @@ Final note, for Docker swarm services, docker secrets are available (https://doc
 
 ### 2.12. Custom log rules
 
-By now, we have addressed the majority of the security objectives defined in our threat model. Throughout this walkthrough, it became clear that several controls have inherent limitations: once the application is vulnerable to Remote Code Execution, an attacker can reach the database (objective 5a) and retrieve the secrets the application must store to function (objective 3). These constraints are structural rather than accidental — an RCE collapses the trust boundary. Fortunately, we still have one powerful control left: logging and security monitoring. This final layer does not prevent the attacker from reaching sensitive components, but it does allow us to detect, contain, and respond to malicious activity before the impact escalates.. Docker logs can be viewed via:
+By now, we have addressed the majority of the security objectives defined in our threat model. Throughout this walkthrough, it became clear that several controls have inherent limitations: once the application is vulnerable to Remote Code Execution, an attacker can reach the database (objective 5a) and retrieve the secrets the application must store to function (objective 3). These constraints are structural rather than accidental — an RCE collapses the trust boundary. Fortunately, we still have one powerful control left: logging and security monitoring. This final layer does not prevent the attacker from reaching sensitive components, but it does allow us to detect, contain, and respond to malicious activity before the impact escalates. Docker logs can be viewed via:
 
 ```bash
 docker logs vault
@@ -668,7 +668,7 @@ docker run --rm -it --name falco --privileged -v /var/run/docker.sock:/host/var/
 
 ![The custom canary rule fires in Falco](./img/33-falco-custom-canary-rule-fires.png)
 
-Perfect, we can now create custom detection rules for our container image. More about creating custom rules can be found on: https://falco.org/docs/concepts/rules/custom-ruleset/. Based on the security trade-off you had to make while configuring the security of this application, you can plunge the gaps. For example, if you decided to work with the secrets manager and have curl still available in your container, you can now monitor that curl is not being abused to get the secret to the attacker. Or maybe even broader, that the output doesn't contain the format of the secrets string.
+Perfect, we can now create custom detection rules for our container image. More about creating custom rules can be found on: https://falco.org/docs/concepts/rules/custom-ruleset/. Based on the security trade-off you had to make while configuring the security of this application, you can plug the gaps. For example, if you decided to work with the secrets manager and have curl still available in your container, you can now monitor that curl is not being abused to get the secret to the attacker. Or maybe even broader, that the output doesn't contain the format of the secrets string.
 
 Having log warnings is great, but to increase your security, you also need to be able to act on them. Of course you can monitor the log file yourself, but this is not very practical. Luckily we can extend the falcosecurity module and let it send the logs to the SIEM of your choice. As this walkthrough is not about setting up SIEM or SOAR, or installing anything specific (Sentinel, Splunk etc.), claude just created this `siem.py` stub for the sake of the demonstration:
 

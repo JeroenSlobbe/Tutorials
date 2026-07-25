@@ -225,7 +225,7 @@ promptfoo redteam report
 
 By default [21] it uses the promptfoo api (based on openAI) for generating scenarios and grading them. If you need to keep the output locally, you can configure a local provider to ensure data doesn't get to the remote provider. In this case, my database was filled with test data, so violating my security objective by testing it (if a response is send to the grader, containing the portfolio data), was off the hook. As such, I just gave it a spin.
 
-The tool generated 1365 scenarios and used 4411 prompts to test those. The execution time of the tool took 7 hours, 4 minutes and 1 seconds during which it used: 3,852,488 input tokens and 599,320 (more than 10% of my daily allowance).
+The tool generated 1365 scenarios and used 4411 prompts to test those. The execution time of the tool took 7 hours, 4 minutes and 1 second during which it used: 3,852,488 input tokens and 599,320 (more than 10% of my daily allowance).
 
 ![image15](img/image15.png)
 
@@ -265,11 +265,11 @@ garak –version
 echo "" >> config.json
 garak --target_type rest -G config.json
 
-A limitation to Garak is that the tools crashes as soon as the rest API doesn’t reply. A ticket is open on github to build a resume function, but at the moment of testing, it wasn’t available. My first run after the crash started at 16:36 on Saturday with 4939983 input tokens and 976342 output tokens on the counter. The next morning, the application was still testing, however, midday (after the encoding.InjectAscii85 plugin was finished) the application crashed.
+A limitation to Garak is that the tool crashes as soon as the rest API doesn’t reply. A ticket is open on github to build a resume function, but at the moment of testing, it wasn’t available. My first run after the crash started at 16:36 on Saturday with 4939983 input tokens and 976342 output tokens on the counter. The next morning, the application was still testing, however, midday (after the encoding.InjectAscii85 plugin was finished) the application crashed.
 
 Luckily, Garak has a configuration option (--probes) to configure the probes you would like to use. As such, I simply continued the test with the probe next after the probe that finished successfully latest. A day later, the test crashed again. This time, my account got blocked due to violating the Request Per Seconds (RPS) threshold for free accounts. So after burning 25,991,639 input tokens, 3,746,969, output tokens and 57 hours and 50 minutes, I decided to go for another approach.
 
-Garak has the option to use a particular config. In this case, there was a nice option, called fast. Within the config file, there was an additional option, generations, which specifies how many prompts to send for interference. In general, less is faster, more yields better testing results. The good thing about the tool, is that the tool also warnings for sub optimal results, when using the fast configuration options:
+Garak has the option to use a particular config. In this case, there was a nice option, called fast. Within the config file, there was an additional option, generations, which specifies how many prompts to send for interference. In general, less is faster, more yields better testing results. The good thing about the tool, is that the tool also warns for sub-optimal results, when using the fast configuration options:
 
 ![image22](img/image22.png)
 
@@ -279,7 +279,7 @@ Finally, the report finished, after using significantly less plugins and optimiz
 
 ![image24](img/image24.png)
 
-To have a deeper understanding of the results, you have the evaluate the hitlog.jsonnl. Luckily, the crashes did not throw away the results of the slow and full testing. So for the finished plugins, I was also able to evaluate their respective hitlogs containing the results as flagged by Garak. Manually analyzing the hitlog, I noticed that we got a great amount of false positives. As my standard application error, was flagged as a potential harmful response:
+To have a deeper understanding of the results, you have to evaluate the hitlog.jsonnl. Luckily, the crashes did not throw away the results of the slow and full testing. So for the finished plugins, I was also able to evaluate their respective hitlogs containing the results as flagged by Garak. Manually analyzing the hitlog, I noticed that we got a great amount of false positives. As my standard application error, was flagged as a potential harmful response:
 
 ![image25](img/image25.png)
 
@@ -291,9 +291,9 @@ In summary, Garak is highly configurable, however, the cost of testing thoroughl
 
 ## 4.1 Lessons learned & residual risk
 
-With my current setup it’s not possible to satisfy security objective: not leaking my portfolio. I can satisfy: the application is not leaking the financial details of my portfolio outside Europe on its own instruction. To be hundred percent fair, this wasn’t satisfied by the original application either, as it would daily pull the information of the owned stocks using the yfinance libary, to get the latest insights. An optimization routine limited the fetching of all exchange traded stock data, to stocks in the portfolio only. Which would give the portfolio away. So, the AI implementation did not lower the security limitations of the original application.
+With my current setup it’s not possible to satisfy security objective: not leaking my portfolio. I can satisfy: the application is not leaking the financial details of my portfolio outside Europe on its own instruction. To be hundred percent fair, this wasn’t satisfied by the original application either, as it would daily pull the information of the owned stocks using the yfinance library, to get the latest insights. An optimization routine limited the fetching of all exchange traded stock data, to stocks in the portfolio only. Which would give the portfolio away. So, the AI implementation did not lower the security limitations of the original application.
 
-Still, the AI-as-a-judge pattern, is only invoked after sending the data, and no pattern filtering to stop the user from sharing his/her portfolio (or other personal details) with Mistral is in place.
+Still, the AI-as-a-judge pattern, is only invoked after sending the data, and no pattern filtering to stop the user from sharing their portfolio (or other personal details) with Mistral is in place.
 
 With the various guardrails in place, I significantly reduced the probability of the application issuing profanities.
 
@@ -305,7 +305,7 @@ I was positively surprised that rate limits, maximum output responses and even �
 
 During the testing, I noticed a couple of interesting behaviors:
 
-Reproducibility & determinism: not all test cases where reproduceable. This is known behavior or AI testing. Luckily the inconsistency itself was reproduceable be creating a new session and provide the following steps:
+Reproducibility & determinism: not all test cases were reproducible. This is known behavior or AI testing. Luckily the inconsistency itself was reproducible by creating a new session and providing the following steps:
 
 ![image27](img/image27.png)
 
@@ -315,7 +315,7 @@ Time of Check Time of Use (ToCToU): During the manual testing, I noticed that th
 
 To avoid this vulnerability, you should enforce that the API can only be called after the completion of any previous request. Ideally enforced in the user interface for usability, as well as on the server side.
 
-While there are many more angels to AI defensive development and AI testing, I did enjoy diving into the deep. While playing around, I got many more ideas for improving the defensive coding style and validating its effectiveness, for example the use of data flags to more accurately classify a leak, make use of a local LLM in promptfoo as generator and determining, trying a bunch more available tools for testing, integrating security in the CI/CD (for example with Pyrit), evaluate the impact of the temperature to boost accuracy of the AI-juge, adding logprobes to the logging to experiment with various probabilistic cut-off values, evaluating the code using an llm, using local LLMs, using fine-tuned LLMs and many more options. However, those need to wait till the next time.
+While there are many more angles to AI defensive development and AI testing, I did enjoy diving into the deep. While playing around, I got many more ideas for improving the defensive coding style and validating its effectiveness, for example the use of data flags to more accurately classify a leak, make use of a local LLM in promptfoo as generator and determining, trying a bunch more available tools for testing, integrating security in the CI/CD (for example with Pyrit), evaluate the impact of the temperature to boost accuracy of the AI-judge, adding logprobs to the logging to experiment with various probabilistic cut-off values, evaluating the code using an llm, using local LLMs, using fine-tuned LLMs and many more options. However, those need to wait till the next time.
 
 ## References
 

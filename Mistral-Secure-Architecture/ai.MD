@@ -147,7 +147,7 @@ The bare prompt costs 152 tokens and 64 for the response. This slightly varies w
 
 #### 2.3.3 Toxicity scoring with local model
 
-I tried a couple of toxicity classifiers, with the constraint that they should be running locally (or run via Mistral). In the end I found toxic-Roberta [8] to work with a couple of basic use-cases, I had in mind. I validated the local_files_only setting, by disconnecting my computer from the internet, and concluding that the script works offline.
+I tried a couple of toxicity classifiers, with the constraint that they should be running locally (or run via Mistral). In the end I found toxic-roberta [8] to work with a couple of basic use-cases, I had in mind. I validated the local_files_only setting, by disconnecting my computer from the internet, and concluding that the script works offline.
 
 ![image10](img/image10.png)
 
@@ -167,7 +167,7 @@ When running the same query 30 times with identical user instructions (with and 
 
 The results remained inconsistent—mostly favoring safe_prompt, but occasionally favoring the version without it. Overall, the performance impact fluctuated in both directions by roughly 200 milliseconds.
 
-If you include sensitive data in your Input, such as health details, this data may be stored as a memory to provide you with more relevant and personalized answers. Currently, you can disable keeping history (partially) in your privacy configuration settings, however to fully disable it, you need to contact sales. In the new beta API, options might become available to enable or disable memory, in current version of the API, no such limiters are available. However this is an important feature to keep an eye on.
+If you include sensitive data in your input, such as health details, this data may be stored as a memory to provide you with more relevant and personalized answers. Currently, you can disable keeping history (partially) in your privacy configuration settings, however to fully disable it, you need to contact sales. In the new beta API, options might become available to enable or disable memory, in the current version of the API, no such limiters are available. However this is an important feature to keep an eye on.
 
 ### 2.4 Cloak / data minimization
 
@@ -185,7 +185,7 @@ Although the new Mistral models might not be trained with the data you or your u
 
 For now, I leave this for another time.
 
-### 2.5 audit logging
+### 2.5 Audit logging
 
 What to write and what not to write to an audit log requires some thinking. If you write the user prompt to the log file, you risk storing personal data in a separate file. However, without the user prompt it's hard to assess users that frequently try to abuse the chat, or -in case of a successful attack- figure out what was happening. As this is a local application, I decided to flush the log file every time the application is rebooted. The main objective of the log file is to test some of the AI tools, I wanted to experiment with. So as a result, I wrote the prompt, prompt response, timestamp, toxicity score and judge verdict to a file. In an enterprise environment, you might want to make very different decisions.
 
@@ -211,7 +211,7 @@ Security testing of AI should be a write-up on its own. The development of secur
 
 Before we start running tools, let’s look at the security objectives again: let’s not go bankrupt (e.g. let’s not spend anything on tools), safeguard reputation and protect my portfolio privacy, while still enjoying new tech.
 
-The easiest way to figure out if the tools are not making calls to an external LLM or API, is running them, while simultaneously monitoring the application using a packet capturing tool. Obviously, it also helps to read the documentation on how the classifiers work for evaluating responses and pay attention during the configuration (providing, external API keys kind of gives it away). However, this is not the goal of today, so I decided to simply swap the SQLite database, with one only containing testdata.
+The easiest way to figure out if the tools are not making calls to an external LLM or API, is running them, while simultaneously monitoring the application using a packet capturing tool. Obviously, it also helps to read the documentation on how the classifiers work for evaluating responses and pay attention during the configuration (providing, external API keys kind of gives it away). However, this is not the goal of today, so I decided to simply swap the SQLite database, with one only containing test data.
 
 ### 3.1 promptfoo
 
@@ -223,7 +223,7 @@ promptfoo init
 promptfoo redteam run
 promptfoo redteam report
 
-By default [21] it uses the promptfoo api (based on openAI) for generating scenarios and grading them. If you need to keep the output locally, you can configure a local provider to ensure data doesn't get to the remote provider. In this case, my database was filled with test data, so violating my security objective by testing it (if a response is send to the grader, containing the portfolio data), was off the hook. As such, I just gave it a spin.
+By default [21] it uses the promptfoo api (based on OpenAI) for generating scenarios and grading them. If you need to keep the output locally, you can configure a local provider to ensure data doesn't get to the remote provider. In this case, my database was filled with test data, so violating my security objective by testing it (if a response is send to the grader, containing the portfolio data), was off the hook. As such, I just gave it a spin.
 
 The tool generated 1365 scenarios and used 4411 prompts to test those. The execution time of the tool took 7 hours, 4 minutes and 1 second during which it used: 3,852,488 input tokens and 599,320 output tokens (more than 10% of my daily allowance).
 
@@ -267,7 +267,7 @@ garak --target_type rest -G config.json
 
 A limitation to Garak is that the tool crashes as soon as the rest API doesn’t reply. A ticket is open on github to build a resume function, but at the moment of testing, it wasn’t available. My first run after the crash started at 16:36 on Saturday with 4939983 input tokens and 976342 output tokens on the counter. The next morning, the application was still testing, however, midday (after the encoding.InjectAscii85 plugin was finished) the application crashed.
 
-Luckily, Garak has a configuration option (--probes) to configure the probes you would like to use. As such, I simply continued the test with the probe next after the probe that finished successfully latest. A day later, the test crashed again. This time, my account got blocked due to violating the Request Per Seconds (RPS) threshold for free accounts. So after burning 25,991,639 input tokens, 3,746,969, output tokens and 57 hours and 50 minutes, I decided to go for another approach.
+Luckily, Garak has a configuration option (--probes) to configure the probes you would like to use. As such, I simply continued the test starting from the last probe that finished successfully. A day later, the test crashed again. This time, my account got blocked due to violating the Request Per Seconds (RPS) threshold for free accounts. So after burning 25,991,639 input tokens, 3,746,969, output tokens and 57 hours and 50 minutes, I decided to go for another approach.
 
 Garak has the option to use a particular config. In this case, there was a nice option, called fast. Within the config file, there was an additional option, generations, which specifies how many prompts to send for interference. In general, less is faster, more yields better testing results. The good thing about the tool, is that the tool also warns of sub-optimal results, when using the fast configuration options:
 
@@ -287,7 +287,7 @@ Garak managed to hit the compute_multi_toxicity threshold, hence some responses 
 
 ![image26](img/image26.png)
 
-In summary, Garak is highly configurable, however, the cost of testing thoroughly are significant in terms of token usage and performance.
+In summary, Garak is highly configurable, however, the costs of testing thoroughly are significant in terms of token usage and performance.
 
 ## 4.1 Lessons learned & residual risk
 
@@ -297,11 +297,11 @@ Still, the AI-as-a-judge pattern, is only invoked after sending the data, and no
 
 With the various guardrails in place, I significantly reduced the probability of the application issuing profanities.
 
-There are a couple of interesting financial tradeoffs. To increase accuracy, you ideally want a second LLM to validate the answer, this does however increase the amount of tokens you are going to spend within the application, and more importantly significantly going to impact its performance. However, this AI-as-a-juge pattern, also shiels off many of the prompt attacsk generated by popular security tooling.
+There are a couple of interesting financial tradeoffs. To increase accuracy, you ideally want a second LLM to validate the answer, this does however increase the amount of tokens you are going to spend within the application, and more importantly, will significantly impact its performance. However, this AI-as-a-juge pattern, also shiels off many of the prompt attacsk generated by popular security tooling.
 
 There are many great tools and frameworks available for assessing security risks of AI chatbots (and other variants), however lots of tutorials do lack concrete examples on how to implement and configure the security controls effectively.
 
-I was positively surprised that rate limits, maximum output responses and even ‘safe_prompt” functionality is offered in the API. However, the user needs to enable most of those explicitly, and to prevent accidents, I think we should switch to a security-by-default concept, rather than configurable security.
+I was positively surprised that rate limits, maximum output responses and even ‘safe_prompt' functionality is offered in the API. However, the user needs to enable most of those explicitly, and to prevent accidents, I think we should switch to a security-by-default concept, rather than configurable security.
 
 During the testing, I noticed a couple of interesting behaviors:
 
@@ -319,26 +319,26 @@ While there are many more angles to AI defensive development and AI testing, I d
 
 ## References
 
-[1] [https://www.alexsmale.com/latency-as-ux-why-200ms-matters-for-perceived-intelligence/](https://www.alexsmale.com/latency-as-ux-why-200ms-matters-for-perceived-intelligence/) 
-[2] [https://pypi.org/project/yfinance/](https://pypi.org/project/yfinance/) 
-[3] [https://tweakers.net/nieuws/242176/europees-ai-bedrijf-mistral-komt-met-nieuwe-ai-modellen-en-maakt-ze-opensource.html](https://tweakers.net/nieuws/242176/europees-ai-bedrijf-mistral-komt-met-nieuwe-ai-modellen-en-maakt-ze-opensource.html) 
-[4] [https://mistral.ai/](https://mistral.ai/) 
-[5] [https://www.bol.com/nl/nl/f/ai-engineering/9300000185264697/](https://www.bol.com/nl/nl/f/ai-engineering/9300000185264697/) 
-[6] [https://saif.google/secure-ai-framework/controls](https://saif.google/secure-ai-framework/controls) 
-[7] [https://huggingface.co/unitary/toxic-bert](https://huggingface.co/unitary/toxic-bert) 
-[8] [https://huggingface.co/unitary/unbiased-toxic-roberta](https://huggingface.co/unitary/unbiased-toxic-roberta) 
-[9] [https://github.com/0xeb/TheBigPromptLibrary/blob/main/Security/GPT-Protections/10%20rules%20of%20protection%20and%20misdirection.md](https://github.com/0xeb/TheBigPromptLibrary/blob/main/Security/GPT-Protections/10%20rules%20of%20protection%20and%20misdirection.md) 
-[10] [https://docs.mistral.ai/capabilities/guardrailing](https://docs.mistral.ai/capabilities/guardrailing)
-[11] [https://flask-limiter.readthedocs.io/en/stable/](https://flask-limiter.readthedocs.io/en/stable/) 
-[12] [https://www.bol.com/nl/nl/f/complete-robot/35335003/](https://www.bol.com/nl/nl/f/complete-robot/35335003/) 
-[13] [https://docs.mistral.ai/api](https://docs.mistral.ai/api) 
-[14] [https://modelcontextprotocol.io/docs/getting-started/intro](https://modelcontextprotocol.io/docs/getting-started/intro) 
-[15] [https://aws.amazon.com/blogs/machine-learning/optimizing-ai-responsiveness-a-practical-guide-to-amazon-bedrock-latency-optimized-inference/](https://aws.amazon.com/blogs/machine-learning/optimizing-ai-responsiveness-a-practical-guide-to-amazon-bedrock-latency-optimized-inference/) 
-[16] [https://www.mckinsey.com/alumni/news-and-events/global-news/alumni-news/barbara-minto-mece-i-invented-it-so-i-get-to-say-how-to-pronounce-it](https://www.mckinsey.com/alumni/news-and-events/global-news/alumni-news/barbara-minto-mece-i-invented-it-so-i-get-to-say-how-to-pronounce-it) 
-[17] [https://ai-sdk.dev/docs/foundations/streaming](https://ai-sdk.dev/docs/foundations/streaming) 
-[18] [https://www.promptfoo.dev/docs/red-team/configuration/](https://www.promptfoo.dev/docs/red-team/configuration/)
-[19] [https://github.com/OWASP/www-project-ai-testing-guide/tree/main/Document](https://github.com/OWASP/www-project-ai-testing-guide/tree/main/Document) 
-[20] [https://www.promptfoo.dev/docs/red-team/configuration/](https://www.promptfoo.dev/docs/red-team/configuration/)
-[21] [https://www.promptfoo.dev/docs/red-team/troubleshooting/grading-results/](https://www.promptfoo.dev/docs/red-team/troubleshooting/grading-results/)
-[22] [https://docs.garak.ai/garak/overview/what-is-garak](https://docs.garak.ai/garak/overview/what-is-garak)
-[23] [https://arxiv.org/abs/2508.17155](https://arxiv.org/abs/2508.17155)
+- [1] [https://www.alexsmale.com/latency-as-ux-why-200ms-matters-for-perceived-intelligence/](https://www.alexsmale.com/latency-as-ux-why-200ms-matters-for-perceived-intelligence/) 
+- [2] [https://pypi.org/project/yfinance/](https://pypi.org/project/yfinance/) 
+- [3] [https://tweakers.net/nieuws/242176/europees-ai-bedrijf-mistral-komt-met-nieuwe-ai-modellen-en-maakt-ze-opensource.html](https://tweakers.net/nieuws/242176/europees-ai-bedrijf-mistral-komt-met-nieuwe-ai-modellen-en-maakt-ze-opensource.html) 
+- [4] [https://mistral.ai/](https://mistral.ai/) 
+- [5] [https://www.bol.com/nl/nl/f/ai-engineering/9300000185264697/](https://www.bol.com/nl/nl/f/ai-engineering/9300000185264697/) 
+- [6] [https://saif.google/secure-ai-framework/controls](https://saif.google/secure-ai-framework/controls) 
+- [7] [https://huggingface.co/unitary/toxic-bert](https://huggingface.co/unitary/toxic-bert) 
+- [8] [https://huggingface.co/unitary/unbiased-toxic-roberta](https://huggingface.co/unitary/unbiased-toxic-roberta) 
+- [9] [https://github.com/0xeb/TheBigPromptLibrary/blob/main/Security/GPT-Protections/10%20rules%20of%20protection%20and%20misdirection.md](https://github.com/0xeb/TheBigPromptLibrary/blob/main/Security/GPT-Protections/10%20rules%20of%20protection%20and%20misdirection.md) 
+- [10] [https://docs.mistral.ai/capabilities/guardrailing](https://docs.mistral.ai/capabilities/guardrailing)
+- [11] [https://flask-limiter.readthedocs.io/en/stable/](https://flask-limiter.readthedocs.io/en/stable/) 
+- [12] [https://www.bol.com/nl/nl/f/complete-robot/35335003/](https://www.bol.com/nl/nl/f/complete-robot/35335003/) 
+- [13] [https://docs.mistral.ai/api](https://docs.mistral.ai/api) 
+- [14] [https://modelcontextprotocol.io/docs/getting-started/intro](https://modelcontextprotocol.io/docs/getting-started/intro) 
+- [15] [https://aws.amazon.com/blogs/machine-learning/optimizing-ai-responsiveness-a-practical-guide-to-amazon-bedrock-latency-optimized-inference/](https://aws.amazon.com/blogs/machine-learning/optimizing-ai-responsiveness-a-practical-guide-to-amazon-bedrock-latency-optimized-inference/) 
+- [16] [https://www.mckinsey.com/alumni/news-and-events/global-news/alumni-news/barbara-minto-mece-i-invented-it-so-i-get-to-say-how-to-pronounce-it](https://www.mckinsey.com/alumni/news-and-events/global-news/alumni-news/barbara-minto-mece-i-invented-it-so-i-get-to-say-how-to-pronounce-it) 
+- [17] [https://ai-sdk.dev/docs/foundations/streaming](https://ai-sdk.dev/docs/foundations/streaming) 
+- [18] [https://www.promptfoo.dev/docs/red-team/configuration/](https://www.promptfoo.dev/docs/red-team/configuration/)
+- [19] [https://github.com/OWASP/www-project-ai-testing-guide/tree/main/Document](https://github.com/OWASP/www-project-ai-testing-guide/tree/main/Document) 
+- [20] [https://www.promptfoo.dev/docs/red-team/configuration/](https://www.promptfoo.dev/docs/red-team/configuration/)
+- [21] [https://www.promptfoo.dev/docs/red-team/troubleshooting/grading-results/](https://www.promptfoo.dev/docs/red-team/troubleshooting/grading-results/)
+- [22] [https://docs.garak.ai/garak/overview/what-is-garak](https://docs.garak.ai/garak/overview/what-is-garak)
+- [23] [https://arxiv.org/abs/2508.17155](https://arxiv.org/abs/2508.17155)

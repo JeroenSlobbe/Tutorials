@@ -4,11 +4,11 @@ The holiday season is a great way to experiment with new technologies. During my
 
 Early in the development process, I established key security objectives: protect portfolio details, prevent unauthorized manipulation of the application, ensure responses remain polite, and keep application data within Europe. To achieve these goals, I implemented a range of controls—including toxicity scoring, an “AI-as-a-judge” mechanism, rate and cost limiters, a data minimization pattern, and strict input/output validation. I then evaluated the effectiveness of these controls using two AI security testing tools, measuring their impact on performance and token usage. My main takeaways of the holiday AI security testing are:
 
-- Many AI tutorials, APIs and frameworks miss the opportunity to apply security, privacy, and safety by design and default: Many AI tutorials do not cover secure, safety or privacy-by-design concepts for AI. As such, we miss another chance of baking in the important characteristics in the beginning (making it more expensive to add them later.  While experimenting, I noticed that functions that contribute to safety, privacy and security are in many cases available, however you need to explicitly enable them, rather than disable them to gain a specific functionality.
-- AI-as-a-judge adds latency, but it’s a powerful content-filtering control: currently the Mistral API does not provide performance measurement functionality, making it hard to measure the impact of security controls on our queries. Some security functions luckily seem to have limited impact in terms of token usage or performance. The outlier is the ai-as-a-judge that has a significant impact but also yields superior results in blocking unsafe content. One might argue, that humans should also take time to think and deliberate before giving an answer to a complicated question, however, in practice, people might walk away from the system [1].
+- Many AI tutorials, APIs and frameworks miss the opportunity to apply security, privacy, and safety by design and default: Many AI tutorials do not cover secure, safety or privacy-by-design concepts for AI. As such, we miss another chance of baking in the important characteristics in the beginning (making it more expensive to add them later). While experimenting, I noticed that functions that contribute to safety, privacy and security are in many cases available, however you need to explicitly enable them, rather than disable them to gain a specific functionality.
+- AI-as-a-judge adds latency, but it’s a powerful content-filtering control: currently the Mistral API does not provide performance measurement functionality, making it hard to measure the impact of security controls on our queries. Some security functions luckily seem to have limited impact in terms of token usage or performance. The outlier is the AI-as-a-judge that has a significant impact but also yields superior results in blocking unsafe content. One might argue, that humans should also take time to think and deliberate before giving an answer to a complicated question, however, in practice, people might walk away from the system [1].
 - An application rate limiter demonstrated to be an effective control. For most of the testing, I had to disable the application rate limiters for tools to be effective. At some point, I also exceeded Mistral's Request Per Second (RPS) limit, and ended up being blocked by the API. This is obviously a good thing security wise!
 - AI security is an extra layer — it doesn’t replace securing the rest of your stack Please don’t throw the good old OWASP top 10 or OWASP ASVS under the bus and replace it with the AITG / OWASP AI top 10, fact is with a new element on the stack, you now need to secure both!
-- Threatmodeling frameworks exist, but we lack practical implementation patterns: many frameworks, threat catalogues and offensive prompt databases exist to develop fit-for-purpose threat models. However, when it comes to implementing specific AI security controls, there are limited blueprints or code examples available.
+- Threat modeling frameworks exist, but we lack practical implementation patterns: many frameworks, threat catalogues and offensive prompt databases exist to develop fit-for-purpose threat models. However, when it comes to implementing specific AI security controls, there are limited blueprints or code examples available.
 - AI security testing tools are quickly becoming accessible to everyone: There are great testing tools available at a reasonable speed and token costs. As with regular testing, effort should be put into validating vulnerabilities and filtering out false positives. One should be careful with this tooling however, as the tooling itself also leverages AI and it’s not always obvious from the front page that a remote solution is used for this.
 ## 1. Application threat model & context
 
@@ -85,7 +85,7 @@ Because probabilistic controls can never guarantee perfect enforcement, every in
 
 ### 2.1 Input/output validation
 
-One of the things I find challenging in protection against role playing and other prompting attacks, is that we try to filter on as many cases as possible. We learned from the past that allow-listing yields much better security results over deny-listing. As there is always a case you will forget.
+One of the things I find challenging in protection against role playing and other prompting attacks, is that we try to filter on as many cases as possible. We learned from the past that allow-listing yields much better security results than deny-listing. As there is always a case you will forget.
 
 To prevent the user (or LLM) from providing most things that can be used to either inject code (SQL, Shell, etc.) or cause an effect in the browser (XSS, Scripting, CSS, etc.), I decided to allow only characters required for a basic financial discussion, and purge the rest:
 
@@ -101,7 +101,7 @@ Finally, I decided to not implement an additional filter to prevent the user fro
 
 As a first step, I used the flask rate limiter [11], to put a limit on the usage of the application overall (limiter = Limiter( key_func=get_remote_address, default_limits=["120 per hour"],app=app )) and the API call that could be made by the application user to talk to the chatbot (@limiter.limit("4 per minute")). Secondly, I encapsulated the call to the Mistral API with a tokensAvailabilityCheck() that ensures no more calls are made on a daily basis than the free subscription allows.
 
-Finally, I bound the requested output, user input (and chat history) to a maximum number of tokens. To make depletion in a single message a bit harder. For the free subscription 500.000 tokens per minute and 1.000.000.000 tokens per month is the maximum. So let’s say not more than 30 million a day.
+Finally, I bound the requested output, user input (and chat history) to a maximum number of tokens. To make depletion in a single message a bit harder. For the free subscription 500.000 tokens per minute and 1.000.000.000 tokens per month are the maximum. So let’s say not more than 30 million a day.
 
 Besides enforcing the number of tokens on the controlled application server side, let’s not forget the Mistral API side. Although not by default, the API of Mistral allows to specify the maximum amount (max_tokens) of tokens to be used in the answer, which I enabled in my API call [13]. In addition to the application and API enforcement, I also recommend enforcing the limits on the service provider side. For Mistral, this can conveniently be configured through the administrator panel:
 
@@ -135,7 +135,7 @@ After equalizing the playing field with (by adding: max_tokens = 150 to the Mist
 
 ![image8](img/image8.png)
 
-So, I guess, the consultancy adage of being MECE (Mutually Exclusive Collectively Exhaustive) [16] needs to be applied to prompt instructions as well (for writing and as preferred output.
+So, I guess, the consultancy adage of being MECE (Mutually Exclusive Collectively Exhaustive) [16] needs to be applied to prompt instructions as well.
 
 #### 2.3.2 AI as a judge
 
@@ -169,7 +169,7 @@ The results remained inconsistent—mostly favoring safe_prompt, but occasionall
 
 If you include sensitive data in your Input, such as health details, this data may be stored as a memory to provide you with more relevant and personalized answers. Currently, you can disable keeping history (partially) in your privacy configuration settings, however to fully disable it, you need to contact sales. In the new beta API, options might become available to enable or disable memory, in current version of the API, no such limiters are available. However this is an important feature to keep an eye on.
 
-### 2.4 Cloak / data minimalization
+### 2.4 Cloak / data minimization
 
 Inspired by the cloaking privacy enhancing technology (PET), I thought it would make sense to at least limit the outgoing data to the LLM. So instead of returning the full risk profile, I created a mapping from the statistics to: High, Medium or Low.
 
@@ -187,23 +187,23 @@ For now, I leave this for another time.
 
 ### 2.5 audit logging
 
-What to write and what not to write to an audit log requires some thinking. If you write the user prompt to the log file, you risk storing personal data in a separate file. However, without the user prompt its hard to assess users that frequently try to abuse the chat, or -in case of a successful attack- figure out what was happening. As this is a local application, I decided to flush the log file every time the application is rebooted. The main objective of the log file is to test some of the AI tools, I wanted to experiment with. So as I result, I wrote the prompt, prompt response, timestamp, toxicity score and judge verdict to a file. In an enterprise environment, you might want to make very different decisions.
+What to write and what not to write to an audit log requires some thinking. If you write the user prompt to the log file, you risk storing personal data in a separate file. However, without the user prompt it's hard to assess users that frequently try to abuse the chat, or -in case of a successful attack- figure out what was happening. As this is a local application, I decided to flush the log file every time the application is rebooted. The main objective of the log file is to test some of the AI tools, I wanted to experiment with. So as a result, I wrote the prompt, prompt response, timestamp, toxicity score and judge verdict to a file. In an enterprise environment, you might want to make very different decisions.
 
 ### 2.6 Performance summary
 
-The table below summarizes the token usage and performance impact of the implemented security controls. While the absolute latency numbers are influenced by external factors—such as my local network conditions and any loadbalancing behavior on the Mistral API—the relative differences between controls are still meaningful.
+The table below summarizes the token usage and performance impact of the implemented security controls. While the absolute latency numbers are influenced by external factors—such as my local network conditions and any load-balancing behavior on the Mistral API—the relative differences between controls are still meaningful.
 
-Across all measurements, the overhead introduced by guardrails such as a structured security context, local toxicity scoring, safe_prompt=true, and dataminimization techniques remains well within acceptable boundaries for a real application. With further code optimization and deployment on professionalgrade compute, these controls should comfortably fit within the performance envelope of a secure, userfacing AI system.
+Across all measurements, the overhead introduced by guardrails such as a structured security context, local toxicity scoring, safe_prompt=true, and dataminimization techniques remains well within acceptable boundaries for a real application. With further code optimization and deployment on professional-grade compute, these controls should comfortably fit within the performance envelope of a secure, user-facing AI system.
 
 | Counter measure | Token usage | Performance | Trade-off |
 | --- | --- | --- | --- |
-| Input/output validation | Reducing | Negligible | The output of the LLM might appear less professional due to the allow-list restrains on grammar symbols. This can be fixed by tweaking the strictness. |
+| Input/output validation | Reducing | Negligible | The output of the LLM might appear less professional due to the allow-list restraints on grammar symbols. This can be fixed by tweaking the strictness. |
 | Cost manager & rate limiter | Reducing | Negligible | The rate limiter is reasonable and does reduce the number of requests that can be made to the LLM. |
 | Security instructions as part of the context | 428 | 32.93 ms | When crafted well, these instructions can reduce output tokens, improve answer consistency, and even increase speed by constraining the model’s reasoning |
 | AI as a judge | 216 | 2000 – 3000 ms | Adds significant latency. The strictness of the judge can be tuned depending on how conservative or permissive the application needs to be. |
 | Toxicity scoring with a local language model | 0 | 150 ms | Requires ~1.39 GB of disk space. Latency is mainly influenced by local hardware performance. |
 | The safe=true Mistral function | 36 | ~ (+/-) 200 ms | Lightweight and effective. Surprising that this is not enabled by default. |
-| Cloaking/data minimalization | Reducing | Negligible | Reduces output specificity but protects personal details and limits unnecessary data exposure. |
+| Cloaking/data minimization | Reducing | Negligible | Reduces output specificity but protects personal details and limits unnecessary data exposure. |
 
 ## 3 Testing
 
@@ -225,7 +225,7 @@ promptfoo redteam report
 
 By default [21] it uses the promptfoo api (based on openAI) for generating scenarios and grading them. If you need to keep the output locally, you can configure a local provider to ensure data doesn't get to the remote provider. In this case, my database was filled with test data, so violating my security objective by testing it (if a response is send to the grader, containing the portfolio data), was off the hook. As such, I just gave it a spin.
 
-The tool generated 1365 scenarios and used 4411 prompts to test those. The execution time of the tool took 7 hours, 4 minutes and 1 second during which it used: 3,852,488 input tokens and 599,320 (more than 10% of my daily allowance).
+The tool generated 1365 scenarios and used 4411 prompts to test those. The execution time of the tool took 7 hours, 4 minutes and 1 second during which it used: 3,852,488 input tokens and 599,320 output tokens (more than 10% of my daily allowance).
 
 ![image15](img/image15.png)
 
@@ -241,7 +241,7 @@ With regular (web) penetration tests, it’s a common practice to ask clients to
 
 ![image18](img/image18.png)
 
-Plotting against my application log file, in 2761 occurrences, the probe made it to the ai-as-a-judge control, which classified 223 instances as unsafe, 1262 invalid and 1276 as valid.
+Plotting against my application log file, in 2761 occurrences, the probe made it to the AI-as-a-judge control, which classified 223 instances as unsafe, 1262 invalid and 1276 as valid.
 
 ![image19](img/image19.png)
 
@@ -269,21 +269,21 @@ A limitation to Garak is that the tool crashes as soon as the rest API doesn’t
 
 Luckily, Garak has a configuration option (--probes) to configure the probes you would like to use. As such, I simply continued the test with the probe next after the probe that finished successfully latest. A day later, the test crashed again. This time, my account got blocked due to violating the Request Per Seconds (RPS) threshold for free accounts. So after burning 25,991,639 input tokens, 3,746,969, output tokens and 57 hours and 50 minutes, I decided to go for another approach.
 
-Garak has the option to use a particular config. In this case, there was a nice option, called fast. Within the config file, there was an additional option, generations, which specifies how many prompts to send for interference. In general, less is faster, more yields better testing results. The good thing about the tool, is that the tool also warns for sub-optimal results, when using the fast configuration options:
+Garak has the option to use a particular config. In this case, there was a nice option, called fast. Within the config file, there was an additional option, generations, which specifies how many prompts to send for interference. In general, less is faster, more yields better testing results. The good thing about the tool, is that the tool also warns of sub-optimal results, when using the fast configuration options:
 
 ![image22](img/image22.png)
 
 ![image23](img/image23.png)
 
-Finally, the report finished, after using significantly less plugins and optimizing for speed:
+Finally, the report finished, after using significantly fewer plugins and optimizing for speed:
 
 ![image24](img/image24.png)
 
-To have a deeper understanding of the results, you have to evaluate the hitlog.jsonnl. Luckily, the crashes did not throw away the results of the slow and full testing. So for the finished plugins, I was also able to evaluate their respective hitlogs containing the results as flagged by Garak. Manually analyzing the hitlog, I noticed that we got a great amount of false positives. As my standard application error, was flagged as a potential harmful response:
+To have a deeper understanding of the results, you have to evaluate the hitlog.jsonl. Luckily, the crashes did not throw away the results of the slow and full testing. So for the finished plugins, I was also able to evaluate their respective hitlogs containing the results as flagged by Garak. Manually analyzing the hitlog, I noticed that we got a great amount of false positives. As my standard application error, was flagged as a potential harmful response:
 
 ![image25](img/image25.png)
 
-Garak managed to hit the compute_multi_toxicity threshold, hence some responses were discarded as toxic. I do think, the sensitivity score needs to go up even further. Again, ai-as-a-judge did a very good job in blocking content that was not supposed to see the daylight. The tool still caught some interesting cases:
+Garak managed to hit the compute_multi_toxicity threshold, hence some responses were discarded as toxic. I do think, the sensitivity score needs to go up even further. Again, AI-as-a-judge did a very good job in blocking content that was not supposed to see the daylight. The tool still caught some interesting cases:
 
 ![image26](img/image26.png)
 
@@ -291,13 +291,13 @@ In summary, Garak is highly configurable, however, the cost of testing thoroughl
 
 ## 4.1 Lessons learned & residual risk
 
-With my current setup it’s not possible to satisfy security objective: not leaking my portfolio. I can satisfy: the application is not leaking the financial details of my portfolio outside Europe on its own instruction. To be hundred percent fair, this wasn’t satisfied by the original application either, as it would daily pull the information of the owned stocks using the yfinance library, to get the latest insights. An optimization routine limited the fetching of all exchange traded stock data, to stocks in the portfolio only. Which would give the portfolio away. So, the AI implementation did not lower the security limitations of the original application.
+With my current setup it’s not possible to satisfy security objective: not leaking my portfolio. I can satisfy: the application is not leaking the financial details of my portfolio outside Europe on its own instruction. To be a hundred percent fair, this wasn’t satisfied by the original application either, as it would daily pull the information of the owned stocks using the yfinance library, to get the latest insights. An optimization routine limited the fetching of all exchange traded stock data, to stocks in the portfolio only. Which would give the portfolio away. So, the AI implementation did not lower the security limitations of the original application.
 
 Still, the AI-as-a-judge pattern, is only invoked after sending the data, and no pattern filtering to stop the user from sharing their portfolio (or other personal details) with Mistral is in place.
 
 With the various guardrails in place, I significantly reduced the probability of the application issuing profanities.
 
-There are a couple of interesting financial tradeoffs. To increase accuracy, you ideally want a second LLM to validate the answer, this does however increase the amount of tokens you are going to spend within the application, and more importantly significantly going to impact its performance. However, this AI-as-a-juge pattern, also shiels of many of the prompt attack generated by popular security tooling.
+There are a couple of interesting financial tradeoffs. To increase accuracy, you ideally want a second LLM to validate the answer, this does however increase the amount of tokens you are going to spend within the application, and more importantly significantly going to impact its performance. However, this AI-as-a-juge pattern, also shiels off many of the prompt attacsk generated by popular security tooling.
 
 There are many great tools and frameworks available for assessing security risks of AI chatbots (and other variants), however lots of tutorials do lack concrete examples on how to implement and configure the security controls effectively.
 
@@ -305,11 +305,11 @@ I was positively surprised that rate limits, maximum output responses and even �
 
 During the testing, I noticed a couple of interesting behaviors:
 
-Reproducibility & determinism: not all test cases were reproducible. This is known behavior or AI testing. Luckily the inconsistency itself was reproducible by creating a new session and providing the following steps:
+Reproducibility & determinism: not all test cases were reproducible. This is known behavior of AI testing. Luckily the inconsistency itself was reproducible by creating a new session and providing the following steps:
 
 ![image27](img/image27.png)
 
-Time of Check Time of Use (ToCToU): During the manual testing, I noticed that the application is potentially vulnerable for a TOCTOU attack. Dipping into the topic, I noticed AI race conditions are not well studied yet [23].
+Time of Check Time of Use (ToCToU): During the manual testing, I noticed that the application is potentially vulnerable to a TOCTOU attack. Dipping into the topic, I noticed AI race conditions are not well studied yet [23].
 
 ![image28](img/image28.png)
 
